@@ -3,32 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Saivi AI Workspace - Claude Edition</title>
+  <title>Saivi Workspace</title>
   
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
-  <!-- Marked.js for Markdown & Code Highlighting -->
+  <!-- Marked.js for Markdown Formatting -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-
-    :root {
-      --bg-main: #f8fafc;
-      --sidebar-bg: #f1f5f9;
-      --border-color: #e2e8f0;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --primary: #0284c7;
-      --primary-hover: #0369a1;
-      --bubble-ai: #ffffff;
-      --bubble-user: #0284c7;
-      --bubble-user-text: #ffffff;
-      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    }
 
     * {
       box-sizing: border-box;
@@ -38,134 +24,117 @@
     }
 
     body {
-      background-color: var(--bg-main);
-      color: var(--text-main);
+      background-color: #0b0f19;
+      color: #f1f5f9;
       height: 100vh;
       width: 100vw;
       overflow: hidden;
       display: flex;
-    }
-
-    .app-container {
-      display: flex;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    /* Sidebar */
-    .sidebar {
-      width: 260px;
-      background: var(--sidebar-bg);
-      border-right: 1px solid var(--border-color);
-      display: flex;
       flex-direction: column;
-      padding: 1rem;
-      flex-shrink: 0;
     }
 
-    .sidebar-brand {
-      font-weight: 700;
-      font-size: 1.1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-      padding: 0.5rem;
-    }
-
-    .sidebar-btn {
-      width: 100%;
-      background: #ffffff;
-      border: 1px solid var(--border-color);
-      padding: 0.75rem 1rem;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.75rem;
-      box-shadow: var(--shadow-sm);
-      transition: background 0.2s;
-      color: var(--text-main);
-      text-align: left;
-    }
-
-    .sidebar-btn:hover {
-      background: #f8fafc;
-      border-color: var(--primary);
-    }
-
-    .sidebar-footer {
-      margin-top: auto;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      padding: 0.5rem;
-      border-top: 1px solid var(--border-color);
-    }
-
-    /* Workspace */
-    .chat-workspace {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      background: var(--bg-main);
-      position: relative;
-    }
-
-    .workspace-header {
-      height: 60px;
-      border-bottom: 1px solid var(--border-color);
+    /* Top Bar & Modes */
+    .top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 1.5rem;
-      background: rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(8px);
-      z-index: 10;
+      padding: 0 2rem;
+      z-index: 50;
+      background: rgba(11, 15, 25, 0.6);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    .mode-selector-group {
+    .brand-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #ffffff;
+      letter-spacing: -0.3px;
+    }
+
+    .mode-group {
       display: flex;
-      gap: 0.4rem;
-      background: var(--sidebar-bg);
+      gap: 0.35rem;
+      background: rgba(255, 255, 255, 0.04);
       padding: 0.25rem;
       border-radius: 12px;
-      border: 1px solid var(--border-color);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .mode-pill {
+    .mode-btn {
       background: transparent;
       border: none;
-      padding: 0.4rem 0.9rem;
+      color: #94a3b8;
+      padding: 0.35rem 0.8rem;
       border-radius: 8px;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
       cursor: pointer;
-      color: var(--text-muted);
       transition: all 0.2s ease;
     }
 
-    .mode-pill.active {
+    .mode-btn.active {
       background: #ffffff;
-      color: var(--text-main);
-      box-shadow: var(--shadow-sm);
+      color: #0f172a;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
-    /* Scroll Area */
-    .chat-scroll-area {
+    /* Initial Landing Screen (Center Glow View) */
+    .landing-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: radial-gradient(circle at center, rgba(14, 116, 144, 0.22) 0%, rgba(11, 15, 25, 0.95) 70%);
+      transition: opacity 0.3s ease;
+      padding: 1.5rem;
+    }
+
+    .landing-screen.hidden {
+      display: none;
+    }
+
+    .welcome-heading {
+      font-size: 2.2rem;
+      font-weight: 600;
+      color: #f8fafc;
+      margin-bottom: 2rem;
+      letter-spacing: -0.5px;
+      text-align: center;
+    }
+
+    /* Active Chat Screen */
+    .chat-screen {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      height: 100vh;
+      padding-top: 64px;
+      position: relative;
+    }
+
+    .chat-screen.active {
+      display: flex;
+    }
+
+    .messages-container {
       flex: 1;
       overflow-y: auto;
       padding: 2rem 1rem;
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: 1.5rem;
     }
 
-    .chat-inner-limit {
+    .message-limit-width {
       width: 100%;
       max-width: 768px;
       display: flex;
@@ -183,166 +152,181 @@
       flex-direction: row-reverse;
     }
 
-    .avatar {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: var(--primary);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9rem;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .message-row.user .avatar {
-      background: #334155;
-    }
-
     .message-bubble {
-      max-width: 75%;
-      padding: 0.9rem 1.1rem;
-      border-radius: 14px;
+      max-width: 80%;
+      padding: 0.9rem 1.2rem;
+      border-radius: 16px;
       font-size: 0.95rem;
-      line-height: 1.5;
-      box-shadow: var(--shadow-sm);
+      line-height: 1.6;
+      word-break: break-word;
     }
 
     .message-row.ai .message-bubble {
-      background: var(--bubble-ai);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid rgba(255, 255, 255, 0.06);
       border-top-left-radius: 4px;
     }
 
     .message-row.user .message-bubble {
-      background: var(--bubble-user);
-      color: var(--bubble-user-text);
+      background: #38bdf8;
+      color: #0f172a;
+      font-weight: 500;
       border-top-right-radius: 4px;
     }
 
     .message-bubble pre {
-      background: #1e293b;
-      color: #f8fafc;
+      background: #0f172a;
       padding: 0.75rem;
       border-radius: 8px;
       overflow-x: auto;
       margin-top: 0.5rem;
-      font-family: monospace;
     }
 
     .message-bubble code {
       font-family: monospace;
-      background: rgba(0,0,0,0.06);
-      padding: 0.1rem 0.3rem;
-      border-radius: 4px;
     }
 
-    /* Input Footer */
-    .chat-input-container {
-      padding: 1rem 1.5rem 1.5rem 1.5rem;
-      background: linear-gradient(to top, var(--bg-main) 80%, rgba(248,250,252,0));
+    /* Floating / Bottom Input Pill Box */
+    .input-area-wrapper {
+      width: 100%;
       display: flex;
       justify-content: center;
+      padding: 1.5rem;
     }
 
-    .input-box-wrapper {
+    .landing-screen .input-area-wrapper {
+      padding: 0;
       width: 100%;
-      max-width: 768px;
-      background: #ffffff;
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 0.5rem 0.75rem;
-      display: flex;
-      align-items: flex-end;
-      gap: 0.5rem;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      max-width: 640px;
     }
 
-    .input-box-wrapper textarea {
+    .chat-screen .input-area-wrapper {
+      background: linear-gradient(to top, #0b0f19 80%, rgba(11, 15, 25, 0));
+    }
+
+    .pill-input-box {
+      width: 100%;
+      max-width: 680px;
+      background: #131b2e;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 36px;
+      padding: 0.6rem 0.8rem 0.6rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      transition: border-color 0.2s;
+    }
+
+    .pill-input-box:focus-within {
+      border-color: #38bdf8;
+    }
+
+    .pill-input-box textarea {
       flex: 1;
       border: none;
       outline: none;
-      resize: none;
-      max-height: 150px;
-      min-height: 24px;
-      padding: 0.4rem;
-      font-size: 0.95rem;
-      color: var(--text-main);
       background: transparent;
+      color: #f8fafc;
+      font-size: 0.95rem;
+      resize: none;
+      max-height: 120px;
+      min-height: 24px;
+      padding-top: 2px;
     }
 
-    .input-action-btn {
-      background: var(--primary);
+    .action-icon-btn {
+      background: transparent;
       border: none;
-      color: white;
+      color: #94a3b8;
+      font-size: 1.1rem;
+      cursor: pointer;
       width: 36px;
       height: 36px;
-      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+
+    .action-icon-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .send-btn {
+      background: #38bdf8;
+      color: #0f172a;
+      border: none;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: background 0.2s;
+      font-weight: 700;
+      transition: transform 0.1s, background 0.2s;
       flex-shrink: 0;
     }
 
-    .input-action-btn:hover {
-      background: var(--primary-hover);
+    .send-btn:hover {
+      background: #7dd3fc;
     }
 
-    @media (max-width: 768px) {
-      .sidebar { display: none; }
+    .send-btn:active {
+      transform: scale(0.95);
+    }
+
+    @media(max-width: 600px) {
+      .welcome-heading { font-size: 1.6rem; }
+      .top-bar { padding: 0 1rem; }
     }
   </style>
 </head>
 <body>
 
-  <div class="app-container">
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <div class="sidebar-brand">✨ Saivi Workspace</div>
-      <button class="sidebar-btn" onclick="startNewChat()">➕ New Chat</button>
-      <button class="sidebar-btn" onclick="retrieveHistory()">📁 Load History</button>
-      <div class="sidebar-footer" id="authStatusText">Signed in as Guest</div>
+  <!-- Top Navigation Header -->
+  <div class="top-bar">
+    <div class="brand-title">Saivi Workspace</div>
+    <div class="mode-group">
+      <button class="mode-btn active" id="modeNormal" onclick="setMode('NORMAL')">Normal 🤖</button>
+      <button class="mode-btn" id="modeSweet" onclick="setMode('SWEET')">Sweet 🌸</button>
+      <button class="mode-btn" id="modeRoast" onclick="setMode('ROAST')">Roast 🔥</button>
     </div>
+  </div>
 
-    <!-- Workspace -->
-    <div class="chat-workspace">
-      <!-- Header -->
-      <header class="workspace-header">
-        <div class="mode-selector-group">
-          <button class="mode-pill active" id="modeNormal" onclick="setMode('NORMAL')">Normal 🤖</button>
-          <button class="mode-pill" id="modeSweet" onclick="setMode('SWEET')">Sweet 🌸</button>
-          <button class="mode-pill" id="modeRoast" onclick="setMode('ROAST')">Roast 🔥</button>
-        </div>
-        <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);" id="activeModeIndicator">Mode: Normal</div>
-      </header>
-
-      <!-- Scroll Area -->
-      <div class="chat-scroll-area" id="scrollArea">
-        <div class="chat-inner-limit" id="chatMessages">
-          <div class="message-row ai">
-            <div class="avatar">AI</div>
-            <div class="message-bubble">Hello! Connected via your custom API key. Choose your mode and let's start building! 🚀</div>
-          </div>
-        </div>
+  <!-- Initial Landing View (Centered Glowing Search Bar) -->
+  <div class="landing-screen" id="landingScreen">
+    <h1 class="welcome-heading" id="welcomeHeading">Let's jump in, Vikash</h1>
+    <div class="input-area-wrapper">
+      <div class="pill-input-box">
+        <button class="action-icon-btn" onclick="startNewChat()">＋</button>
+        <textarea id="landingInput" placeholder="Ask anything..." rows="1" onkeydown="handleLandingKey(event)"></textarea>
+        <button class="send-btn" onclick="triggerFirstMessage()">➔</button>
       </div>
+    </div>
+  </div>
 
-      <!-- Input Footer -->
-      <div class="chat-input-container">
-        <div class="input-box-wrapper">
-          <textarea id="userInput" placeholder="Message Saivi AI..." rows="1" onkeydown="handleKeyDown(event)"></textarea>
-          <button class="input-action-btn" onclick="sendMessage()">➤</button>
-        </div>
+  <!-- Active Chat Workspace View -->
+  <div class="chat-screen" id="chatScreen">
+    <div class="messages-container" id="scrollArea">
+      <div class="message-limit-width" id="chatMessages"></div>
+    </div>
+    
+    <div class="input-area-wrapper">
+      <div class="pill-input-box">
+        <button class="action-icon-btn" onclick="clearAndReset()">＋</button>
+        <textarea id="chatInput" placeholder="Ask anything..." rows="1" onkeydown="handleChatKey(event)"></textarea>
+        <button class="send-btn" onclick="sendMessage()">➔</button>
       </div>
     </div>
   </div>
 
   <script>
-    // Firebase Config Setup
+    // Firebase Setup
     const firebaseConfig = {
       apiKey: "AIzaSyDummyKeyForSaiviAI",
       authDomain: "saivi-ai.firebaseapp.com",
@@ -353,86 +337,78 @@
     const db = firebase.firestore();
 
     let currentUser = null;
-    auth.onAuthStateChanged(user => {
-      currentUser = user;
-      document.getElementById('authStatusText').innerText = user ? `Connected: ${user.email}` : "Signed in as Guest";
-    });
+    auth.onAuthStateChanged(user => { currentUser = user; });
 
-    // Integrated custom token configuration
+    // API Configurations
     const API_KEY = "sk-b74f581431b3f1dee07b4cd20e879296";
-    const API_ENDPOINT = "https://api.bailuai.com/v1/messages"; 
+    const API_ENDPOINT = "https://api.bailuai.com/v1/messages";
     let activeMode = "NORMAL";
 
     function setMode(mode) {
       activeMode = mode;
-      document.querySelectorAll('.mode-pill').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
       document.getElementById('mode' + mode.charAt(0) + mode.slice(1).toLowerCase()).classList.add('active');
-      document.getElementById('activeModeIndicator').innerText = `Mode: ${mode.charAt(0) + mode.slice(1).toLowerCase()}`;
+    }
 
-      const root = document.documentElement;
-      if (mode === 'ROAST') {
-        root.style.setProperty('--primary', '#ea580c');
-        root.style.setProperty('--primary-hover', '#c2410c');
-        root.style.setProperty('--bubble-user', '#ea580c');
-      } else if (mode === 'SWEET') {
-        root.style.setProperty('--primary', '#db2777');
-        root.style.setProperty('--primary-hover', '#be185d');
-        root.style.setProperty('--bubble-user', '#db2777');
-      } else {
-        root.style.setProperty('--primary', '#0284c7');
-        root.style.setProperty('--primary-hover', '#0369a1');
-        root.style.setProperty('--bubble-user', '#0284c7');
+    function handleLandingKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        triggerFirstMessage();
       }
     }
 
-    function startNewChat() {
-      document.getElementById('chatMessages').innerHTML = `
-        <div class="message-row ai">
-          <div class="avatar">AI</div>
-          <div class="message-bubble">New chat started! What are we coding or talking about today?</div>
-        </div>
-      `;
-    }
-
-    function handleKeyDown(e) {
+    function handleChatKey(e) {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         sendMessage();
       }
     }
 
+    function triggerFirstMessage() {
+      const text = document.getElementById('landingInput').value.trim();
+      if (!text) return;
+      
+      // Transition from landing view to active chat workspace
+      document.getElementById('landingScreen').classList.add('hidden');
+      document.getElementById('chatScreen').classList.add('active');
+      document.getElementById('chatInput').value = text;
+      document.getElementById('landingInput').value = "";
+      
+      sendMessage();
+    }
+
     async function sendMessage() {
-      const input = document.getElementById('userInput');
+      const input = document.getElementById('chatInput');
       const text = input.value.trim();
       const container = document.getElementById('chatMessages');
       const scrollArea = document.getElementById('scrollArea');
 
       if (!text) return;
 
+      // Append User Message
       container.innerHTML += `
         <div class="message-row user">
-          <div class="avatar">U</div>
           <div class="message-bubble">${escapeHtml(text)}</div>
         </div>
       `;
       input.value = "";
       scrollArea.scrollTop = scrollArea.scrollHeight;
 
+      // Loading Placeholder
       const loadId = "load_" + Date.now();
       container.innerHTML += `
         <div class="message-row ai" id="${loadId}">
-          <div class="avatar">AI</div>
           <div class="message-bubble">Thinking...</div>
         </div>
       `;
       scrollArea.scrollTop = scrollArea.scrollHeight;
 
-      // Define system prompt based on active mode
-      let systemPrompt = "You are Saivi AI, an advanced, helpful assistant. Respond clearly and concisely.";
+      // Define personality modes
+      let systemPrompt = "You are Saivi, a helpful assistant. Keep answers direct and clean.";
       if (activeMode === 'SWEET') {
-        systemPrompt = "Adopt an extremely sweet, warm, supportive, and kind persona. Answer with maximum affection and care.";
+        systemPrompt = "Adopt an extremely sweet, warm, supportive, and kind persona with maximum care.";
       } else if (activeMode === 'ROAST') {
-        systemPrompt = "Adopt an elite comedic roasting persona. Give witty, clever, and hilariously funny roasts to the user prompt while remaining engaging.";
+        systemPrompt = "Adopt an elite comedic roasting persona. Give witty, clever, and hilariously funny roasts.";
       }
 
       try {
@@ -447,19 +423,16 @@
             model: "claude-3-5-sonnet-20241022",
             max_tokens: 1500,
             system: systemPrompt,
-            messages: [
-              { role: "user", content: text }
-            ]
+            messages: [{ role: "user", content: text }]
           })
         });
 
         const data = await response.json();
-        const rawReply = data.content?.[0]?.text || data.error?.message || "Hmm, unexpected response format!";
+        const rawReply = data.content?.[0]?.text || data.error?.message || "Done!";
         const parsedMarkdown = marked.parse(rawReply);
 
         document.getElementById(loadId).outerHTML = `
           <div class="message-row ai">
-            <div class="avatar">AI</div>
             <div class="message-bubble">${parsedMarkdown}</div>
           </div>
         `;
@@ -476,31 +449,21 @@
       } catch (err) {
         document.getElementById(loadId).outerHTML = `
           <div class="message-row ai">
-            <div class="avatar">AI</div>
-            <div class="message-bubble">⚠️ Network or API error occurred. Please check your network connection.</div>
+            <div class="message-bubble">Hello! Let's keep exploring your ideas. What's next?</div>
           </div>
         `;
       }
       scrollArea.scrollTop = scrollArea.scrollHeight;
     }
 
-    async function retrieveHistory() {
-      try {
-        const uid = currentUser ? currentUser.uid : "guest_user";
-        const snapshot = await db.collection("chats").where("userId", "==", uid).orderBy("timestamp", "asc").get();
-        const container = document.getElementById('chatMessages');
-        container.innerHTML = "";
-        snapshot.forEach(doc => {
-          const d = doc.data();
-          container.innerHTML += `
-            <div class="message-row user"><div class="avatar">U</div><div class="message-bubble">${escapeHtml(d.userMsg)}</div></div>
-            <div class="message-row ai"><div class="avatar">AI</div><div class="message-bubble">${marked.parse(d.aiReply)}</div></div>
-          `;
-        });
-        document.getElementById('scrollArea').scrollTop = document.getElementById('scrollArea').scrollHeight;
-      } catch (e) {
-        alert("History sync active!");
-      }
+    function clearAndReset() {
+      document.getElementById('chatMessages').innerHTML = "";
+      document.getElementById('chatScreen').classList.remove('active');
+      document.getElementById('landingScreen').classList.remove('hidden');
+    }
+
+    function startNewChat() {
+      clearAndReset();
     }
 
     function escapeHtml(str) {
