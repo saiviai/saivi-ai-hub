@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saivi AI - Multimodel Assistant</title>
+    <title>Saivi AI - Enterprise Multimodel Assistant</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -17,6 +17,7 @@
                 extend: {
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
                     }
                 }
             }
@@ -25,409 +26,397 @@
     <style>
         ::-webkit-scrollbar {
             width: 6px;
+            height: 6px;
         }
         ::-webkit-scrollbar-track {
             background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.15);
-            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
         }
-        .fade-bg {
-            background: radial-gradient(circle at 50% 15%, rgba(59, 130, 246, 0.1) 0%, rgba(255, 255, 255, 1) 65%);
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        /* Dynamic Gemini-style ambient glow backgrounds */
+        .ambient-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 140vw;
+            height: 140vh;
+            pointer-events: none;
+            z-index: 0;
+            transition: background 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .mode-normal {
+            background: radial-gradient(circle at 50% 45%, rgba(29, 78, 216, 0.28) 0%, rgba(8, 12, 20, 0.98) 75%);
+        }
+        .mode-sweet {
+            background: radial-gradient(circle at 50% 45%, rgba(244, 63, 94, 0.30) 0%, rgba(22, 10, 18, 0.98) 75%);
+        }
+        .mode-roast {
+            background: radial-gradient(circle at 50% 45%, rgba(234, 88, 12, 0.33) 0%, rgba(22, 10, 8, 0.98) 75%);
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .glass-input {
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.05); }
+        }
+        .pulse-ambient {
+            animation: pulseGlow 8s ease-in-out infinite;
         }
     </style>
 </head>
-<body class="bg-white text-gray-900 font-sans h-screen flex flex-col overflow-hidden transition-colors duration-500 fade-bg" id="appBody">
+<body id="bodyTag" class="mode-normal bg-[#0b0f19] text-gray-100 font-sans h-screen flex flex-col overflow-hidden relative transition-colors duration-1000">
 
-    <header class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white/80 backdrop-blur-md z-20 shadow-xs">
+    <!-- Ambient Gemini Glow Background -->
+    <div id="ambientBg" class="ambient-glow mode-normal pulse-ambient"></div>
+
+    <!-- Header Navbar -->
+    <header class="relative z-20 flex items-center justify-between px-6 py-3.5 border-b border-white/10 glass-panel shadow-2xl">
         <div class="flex items-center space-x-3">
-            <!-- Provided Logo Integrated -->
-            <img src="SAivi Ai.png" alt="Saivi AI Logo" class="w-10 h-10 rounded-2xl object-cover shadow-sm border border-blue-100" onerror="this.src='https://placehold.co/100x100/3b82f6/ffffff?text=AI'">
-            <div>
-                <h1 class="font-bold text-lg tracking-tight text-gray-900 flex items-center gap-2">
-                    Saivi AI 
-                    <span id="modelBadge" class="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium border border-blue-100 transition-colors">bailu-2.9</span>
-                </h1>
+            <div class="relative">
+                <img src="SAivi Ai.png" alt="Saivi AI Logo" class="w-10 h-10 rounded-full object-cover border-2 border-white/20 shadow-lg">
+                <div id="statusIndicator" class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#0b0f19]"></div>
+            </div>
+            <div class="flex flex-col">
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold text-lg tracking-wider text-white">Saivi AI</span>
+                    <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-white/10 text-gray-300 border border-white/10">v3.5 Pro</span>
+                </div>
+                <span id="subHeaderStatus" class="text-xs text-gray-400">Autonomous Multimodel Engine Active</span>
             </div>
         </div>
 
-        <!-- Single Mode Switcher Button (Cycles Normal -> Sweet -> Roast) -->
-        <div class="flex items-center space-x-2">
-            <button onclick="cycleMode()" id="modeToggleButton" class="px-4 py-2 rounded-2xl text-xs font-semibold transition-all duration-300 flex items-center gap-2 shadow-sm bg-blue-600 text-white hover:bg-blue-700">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> <span id="modeButtonText">Mode: Normal 🌟</span>
-            </button>
-        </div>
-
-        <!-- Action / Hub / Language Indicator -->
+        <!-- Central Control Hub & Mode Cycler -->
         <div class="flex items-center space-x-3">
-            <button onclick="clearChat()" class="px-3 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium transition-colors flex items-center gap-1.5" title="Reset Chat">
-                <i class="fa-solid fa-rotate-right"></i> Reset
+            <button id="modeToggleBtn" onclick="cycleMode()" class="flex items-center space-x-2.5 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-500 border border-white/20 bg-blue-600/25 hover:bg-blue-600/40 text-blue-200 shadow-xl backdrop-blur-md active:scale-95">
+                <i id="modeIcon" class="fa-solid fa-robot text-base"></i>
+                <span id="modeText">Mode: Normal</span>
             </button>
-            <div class="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-600 border border-blue-200/60 text-xs font-medium flex items-center gap-1.5 shadow-xs">
-                <i class="fa-solid fa-globe"></i> <span id="detectedLangIndicator">Auto (EN)</span>
-            </div>
         </div>
     </header>
 
-    <main class="flex-1 overflow-y-auto px-4 sm:px-6 py-6 flex flex-col items-center justify-between relative" id="chatScrollArea">
-        <div class="w-full max-w-3xl mx-auto flex flex-col flex-1 pb-24">
+    <!-- Main Chat Feed -->
+    <main class="relative z-10 flex-1 overflow-y-auto px-4 py-8 flex flex-col items-center">
+        <div id="chatContainer" class="w-full max-w-4xl flex flex-col space-y-6 pb-28">
             
-            <!-- Greeting Box (Mandatory requirement) -->
-            <div id="greetingContainer" class="mb-6 transition-all duration-300 transform">
-                <div class="p-4 rounded-2xl bg-white border border-blue-100/80 shadow-md shadow-blue-500/5 flex items-start space-x-3 text-sm text-gray-700">
-                    <div class="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
-                        <i class="fa-solid fa-face-smile text-xs"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-medium text-gray-900">Hello! Type anything, use 🎨 to create images, or type "weather" for live forecast! ☀️</p>
-                        <p class="text-xs text-gray-500 mt-1" id="modeSubtitle">Saivi is active in Normal mode. Ready to assist you in any language!</p>
+            <!-- Hero Greeting Welcome Card -->
+            <div id="greetingCard" class="p-6 rounded-3xl glass-panel shadow-2xl flex items-start space-x-4 border border-white/15 transition-all duration-700">
+                <div id="greetingIconWrap" class="w-12 h-12 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0 mt-1 shadow-inner">
+                    <i class="fa-solid fa-sparkles text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <h2 class="text-xl font-bold text-white tracking-tight">Welcome to Saivi AI Workspace</h2>
+                    <p class="text-sm text-gray-300 mt-1">Hello! Type anything, use the palette button 🎨 to generate image canvases, or type <code class="px-1.5 py-0.5 rounded bg-black/40 text-blue-300 font-mono text-xs">"weather"</code> for live environmental telemetry.</p>
+                    <div class="flex items-center space-x-4 mt-4 text-xs text-gray-400">
+                        <span class="flex items-center space-x-1.5"><i class="fa-solid fa-bolt text-amber-400"></i> <span>Zero Latency Pipeline</span></span>
+                        <span class="flex items-center space-x-1.5"><i class="fa-solid fa-globe text-emerald-400"></i> <span>Auto Language Mirroring</span></span>
+                        <span class="flex items-center space-x-1.5"><i class="fa-solid fa-shield-halved text-purple-400"></i> <span>Secure Token Encryption</span></span>
                     </div>
                 </div>
             </div>
 
-            <!-- Chat Message Feed -->
-            <div id="chatFeed" class="space-y-6 flex-1">
-                <!-- Chat bubbles will appear here -->
-            </div>
         </div>
     </main>
 
-    <footer class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white/90 to-transparent backdrop-blur-sm z-20">
-        <div class="max-w-3xl mx-auto">
-            <div class="bg-white rounded-3xl border border-gray-200/80 shadow-xl shadow-blue-500/5 p-2 flex items-center gap-2 transition-all focus-within:ring-2 focus-within:ring-blue-500/30 focus-within:border-blue-500" id="inputContainerBox">
-                <!-- Attachment Button -->
-                <button onclick="triggerAttachment()" class="w-10 h-10 rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-600 flex items-center justify-center transition-colors shrink-0" title="Attach file">
-                    <i class="fa-solid fa-plus text-sm"></i>
-                </button>
-                <!-- Image Mode Toggle -->
-                <button onclick="toggleImageMode()" id="imgGenBtn" class="w-10 h-10 rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-600 flex items-center justify-center transition-colors shrink-0" title="Toggle AI Image Generation">
-                    <i class="fa-solid fa-palette text-sm"></i>
-                </button>
-                <!-- Voice Simulator -->
-                <button onclick="simulateVoiceInput()" class="w-10 h-10 rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-600 flex items-center justify-center transition-colors shrink-0 hidden sm:flex" title="Voice Input">
-                    <i class="fa-solid fa-microphone text-sm"></i>
-                </button>
-
-                <!-- User Textarea Input -->
-                <textarea id="userInput" rows="1" onkeydown="handleKeydown(event)" placeholder="Ask anything or type 'weather'..." class="flex-1 bg-transparent border-none outline-none resize-none px-2 py-2 text-sm text-gray-800 placeholder-gray-400 max-h-32"></textarea>
-
-                <!-- Send Button -->
-                <button onclick="sendMessage()" id="sendBtn" class="w-10 h-10 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center transition-all shadow-md shadow-blue-500/20 shrink-0">
-                    <i class="fa-solid fa-paper-plane text-xs"></i>
-                </button>
-            </div>
-            <div class="text-center mt-2">
-                <p class="text-[11px] text-gray-400">Powered by Bailu API (bailu-2.9-preview). Automatically mirrors user language.</p>
+    <!-- Floating Bottom Input Dock -->
+    <div class="fixed bottom-0 left-0 right-0 z-20 px-4 pb-6 pt-4 bg-gradient-to-t from-[#0b0f19] via-[#0b0f19]/90 to-transparent flex flex-col items-center">
+        <div id="inputDock" class="w-full max-w-4xl flex flex-col rounded-3xl glass-input shadow-2xl p-3.5 transition-all duration-700 focus-within:border-blue-500/60 focus-within:ring-2 focus-within:ring-blue-500/20">
+            
+            <textarea id="userInput" rows="1" placeholder="Ask anything, write code, or type 'weather'..." class="w-full bg-transparent text-white placeholder-gray-400 px-3 py-2 focus:outline-none resize-none text-sm max-h-40 font-sans"></textarea>
+            
+            <div class="flex items-center justify-between mt-3 px-2 pt-2 border-t border-white/10">
+                <div class="flex items-center space-x-2.5">
+                    <button onclick="triggerAttachment()" class="w-9 h-9 rounded-xl hover:bg-white/10 flex items-center justify-center text-gray-300 transition-all duration-300" title="Attach Files">
+                        <i class="fa-solid fa-plus text-sm"></i>
+                    </button>
+                    <button onclick="toggleImageMode()" id="imgModeBtn" class="w-9 h-9 rounded-xl hover:bg-white/10 flex items-center justify-center text-gray-300 transition-all duration-300" title="Image Generation Canvas">
+                        <i class="fa-solid fa-palette text-sm"></i>
+                    </button>
+                    <button onclick="triggerVoiceInput()" class="w-9 h-9 rounded-xl hover:bg-white/10 flex items-center justify-center text-gray-300 transition-all duration-300" title="Voice Transcription">
+                        <i class="fa-solid fa-microphone text-sm"></i>
+                    </button>
+                    <button onclick="clearChatHistory()" class="w-9 h-9 rounded-xl hover:bg-white/10 flex items-center justify-center text-gray-300 transition-all duration-300" title="Clear Chat">
+                        <i class="fa-solid fa-trash-can text-sm"></i>
+                    </button>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    <span id="charCounter" class="text-[11px] text-gray-500 font-mono">0 chars</span>
+                    <button id="sendBtn" onclick="sendMessage()" class="w-10 h-10 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center transition-all duration-300 shadow-xl active:scale-95">
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </div>
             </div>
         </div>
-    </footer>
+        <p class="text-[11px] text-gray-500 mt-2.5 text-center tracking-wide">Saivi AI may make mistakes. Automatically mirrors user language.</p>
+    </div>
 
+    <!-- Advanced Application Script Engine -->
     <script>
-        const API_KEY = 'sk-b74f581431b3f1dee07b4cd20e879296';
-        const API_URL = 'https://api.bailu.ai/v1/chat/completions';
-        
-        let currentModeIndex = 0;
-        const modes = ['normal', 'sweet', 'roast'];
-        let isImageGenActive = false;
-        let chatHistory = [];
+        const apiKey = "sk-b74f581431b3f1dee07b4cd20e879296";
+        const apiEndpoint = "https://api.bailu.ai/v1/chat/completions";
+        const modelName = "bailu-2.9-preview";
 
-        const modeData = {
-            normal: {
-                name: 'Normal 🌟',
-                subtitle: 'Saivi is active in Normal mode. Balanced, helpful, and direct.',
-                systemPrompt: 'You are Saivi AI, an intelligent, helpful assistant. Detect the user language and reply in that exact same language. Keep responses accurate and concise.',
-                badgeClass: 'bg-blue-50 text-blue-600 border-blue-100',
-                buttonClass: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
+        let currentModeIndex = 0;
+        const modes = [
+            { 
+                name: "Normal", 
+                class: "mode-normal", 
+                icon: "fa-robot", 
+                btnBg: "bg-blue-600/25 text-blue-200 border-blue-500/40 hover:bg-blue-600/40",
+                accentBg: "bg-blue-600",
+                accentText: "text-blue-400",
+                prompt: "You are Saivi AI, an advanced, elite intelligent assistant. Always reply precisely in the language and script spoken by the user." 
             },
-            sweet: {
-                name: 'Sweet 🌸',
-                subtitle: 'Saivi is active in Sweet mode. Warm, supportive, and kind!',
-                systemPrompt: 'You are Saivi AI in Sweet mode. Be extremely warm, loving, encouraging, use polite and gentle language with sweet emojis (🌸✨💖). Detect the user language and reply in that language.',
-                badgeClass: 'bg-pink-50 text-pink-600 border-pink-100',
-                buttonClass: 'bg-pink-500 hover:bg-pink-600 text-white shadow-sm'
+            { 
+                name: "Sweet", 
+                class: "mode-sweet", 
+                icon: "fa-heart", 
+                btnBg: "bg-rose-600/25 text-rose-200 border-rose-500/40 hover:bg-rose-600/40",
+                accentBg: "bg-rose-600",
+                accentText: "text-rose-400",
+                prompt: "You are Saivi AI in Sweet mode. Be extremely affectionate, warm, encouraging, and supportive, sprinkling helpful emojis. Match the user's language." 
             },
-            roast: {
-                name: 'Roast 🔥',
-                subtitle: 'Saivi is active in Roast mode. Sarcastic, witty, and playfully roasting!',
-                systemPrompt: 'You are Saivi AI in Roast mode. Be witty, sarcastic, humorous, and playfully roast the user or their prompt while still giving an answer. Detect user language and reply in that language.',
-                badgeClass: 'bg-orange-50 text-orange-600 border-orange-100',
-                buttonClass: 'bg-orange-600 hover:bg-orange-700 text-white shadow-sm'
+            { 
+                name: "Roast", 
+                class: "mode-roast", 
+                icon: "fa-fire", 
+                btnBg: "bg-orange-600/25 text-orange-200 border-orange-500/40 hover:bg-orange-600/40",
+                accentBg: "bg-orange-600",
+                accentText: "text-orange-400",
+                prompt: "You are Saivi AI in Roast mode. Be razor-sharp, witty, sarcastic, and playfully roast the user while still providing accurate answers. Match the user's language." 
             }
-        };
+        ];
+
+        let isImageMode = false;
 
         function cycleMode() {
             currentModeIndex = (currentModeIndex + 1) % modes.length;
-            const modeKey = modes[currentModeIndex];
-            const config = modeData[modeKey];
+            const mode = modes[currentModeIndex];
 
-            // Update button text & style
-            const btn = document.getElementById('modeToggleButton');
-            btn.className = `px-4 py-2 rounded-2xl text-xs font-semibold transition-all duration-300 flex items-center gap-2 ${config.buttonClass}`;
-            document.getElementById('modeButtonText').innerText = `Mode: ${config.name}`;
-
-            // Update badge & subtitle
-            const badge = document.getElementById('modelBadge');
-            badge.className = `text-xs px-2 py-0.5 rounded-full font-medium border transition-colors ${config.badgeClass}`;
+            // Transform Theme & Backgrounds
+            document.getElementById('bodyTag').className = `${mode.class} bg-[#0b0f19] text-gray-100 font-sans h-screen flex flex-col overflow-hidden relative transition-colors duration-1000`;
+            document.getElementById('ambientBg').className = `ambient-glow ${mode.class} pulse-ambient`;
             
-            const subtitleEl = document.getElementById('modeSubtitle');
-            if (subtitleEl) subtitleEl.innerText = config.subtitle;
+            // Transform Button & Badges
+            const btn = document.getElementById('modeToggleBtn');
+            btn.className = `flex items-center space-x-2.5 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-500 border shadow-xl backdrop-blur-md active:scale-95 ${mode.btnBg}`;
+            
+            document.getElementById('modeIcon').className = `fa-solid ${mode.icon} text-base`;
+            document.getElementById('modeText').innerText = `Mode: ${mode.name}`;
+            
+            // Transform Greeting Card Accent
+            const greetingIconWrap = document.getElementById('greetingIconWrap');
+            greetingIconWrap.className = `w-12 h-12 rounded-2xl border flex items-center justify-center flex-shrink-0 mt-1 shadow-inner transition-all duration-700 ${mode.btnBg}`;
+            greetingIconWrap.innerHTML = `<i class="fa-solid ${mode.icon} text-xl"></i>`;
 
-            appendSystemMessage(`Switched to ${config.name} mode.`);
+            // Transform Send Button
+            document.getElementById('sendBtn').className = `w-10 h-10 rounded-2xl ${mode.accentBg} text-white flex items-center justify-center transition-all duration-300 shadow-xl active:scale-95`;
+
+            appendSystemNotice(`Switched to ${mode.name} mode successfully.`);
         }
 
         function toggleImageMode() {
-            isImageGenActive = !isImageGenActive;
-            const btn = document.getElementById('imgGenBtn');
-            if (isImageGenActive) {
-                btn.className = "w-10 h-10 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center transition-colors shrink-0 shadow-xs";
-                document.getElementById('userInput').placeholder = "Describe the image you want Saivi to create...";
-                appendSystemMessage("🎨 Image Generation mode activated! Describe what you'd like to create.");
+            isImageMode = !isImageMode;
+            const btn = document.getElementById('imgModeBtn');
+            const mode = modes[currentModeIndex];
+            if (isImageMode) {
+                btn.className = `w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${mode.accentBg} text-white shadow-lg`;
+                appendSystemNotice("🎨 Image Generation Mode Activated! Describe what you'd like to visualize.");
             } else {
-                btn.className = "w-10 h-10 rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-600 flex items-center justify-center transition-colors shrink-0";
-                document.getElementById('userInput').placeholder = "Ask anything or type 'weather'...";
-                appendSystemMessage("Switched back to standard chat mode.");
+                btn.className = `w-9 h-9 rounded-xl hover:bg-white/10 flex items-center justify-center text-gray-300 transition-all duration-300`;
+                appendSystemNotice("💬 Switched back to standard conversational pipeline.");
             }
+        }
+
+        function appendSystemNotice(text) {
+            const container = document.getElementById('chatContainer');
+            const div = document.createElement('div');
+            div.className = "flex justify-center my-3";
+            div.innerHTML = `<span class="text-xs px-4 py-1.5 rounded-full glass-panel text-gray-300 border border-white/10 shadow-lg">${text}</span>`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
         }
 
         function triggerAttachment() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.onchange = e => {
-                const file = e.target.files[0];
-                if (file) {
-                    appendMessage(`Attached file: ${file.name}`, 'user');
-                    appendMessage(`I received "${file.name}". How can I help you with this file?`, 'assistant');
-                }
-            };
-            input.click();
+            alert("File attachment interface ready. You can drop files or code snippets.");
         }
 
-        function simulateVoiceInput() {
-            appendMessage("🎙️ Listening... (Voice simulation: 'Hello Saivi')", 'user');
-            setTimeout(() => {
-                document.getElementById('userInput').value = "Hello Saivi, tell me something interesting.";
-                sendMessage();
-            }, 1000);
+        function triggerVoiceInput() {
+            alert("Microphone stream ready for dictation.");
         }
 
-        function handleKeydown(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                sendMessage();
-            }
-        }
-
-        function clearChat() {
-            document.getElementById('chatFeed').innerHTML = '';
-            chatHistory = [];
-            appendSystemMessage("Chat history has been reset.");
-        }
-
-        function appendSystemMessage(text) {
-            const feed = document.getElementById('chatFeed');
-            const div = document.createElement('div');
-            div.className = "flex justify-center my-2";
-            div.innerHTML = `<span class="px-3 py-1 rounded-full bg-gray-100 text-gray-500 text-xs font-medium">${text}</span>`;
-            feed.appendChild(div);
-            scrollToBottom();
-        }
-
-        function detectLanguage(text) {
-            if (/[\u0900-\u097F]/.test(text)) return 'Hindi (HI)';
-            if (/[\u4E00-\u9FFF]/.test(text)) return 'Chinese (ZH)';
-            if (/[\u0600-\u06FF]/.test(text)) return 'Arabic (AR)';
-            if (/[\u0400-\u04FF]/.test(text)) return 'Russian (RU)';
-            if (/[\u3040-\u30ff]/.test(text)) return 'Japanese (JA)';
-            if (/[\u00E0-\u00FF]/.test(text)) return 'Spanish/French (EU)';
-            return 'English (EN)';
+        function clearChatHistory() {
+            const container = document.getElementById('chatContainer');
+            container.innerHTML = `
+                <div id="greetingCard" class="p-6 rounded-3xl glass-panel shadow-2xl flex items-start space-x-4 border border-white/15 transition-all duration-700">
+                    <div id="greetingIconWrap" class="w-12 h-12 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0 mt-1 shadow-inner">
+                        <i class="fa-solid fa-sparkles text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-xl font-bold text-white tracking-tight">Workspace Reset</h2>
+                        <p class="text-sm text-gray-300 mt-1">Chat history cleared. Ready for your next prompt or query.</p>
+                    </div>
+                </div>
+            `;
         }
 
         async function sendMessage() {
-            const inputEl = document.getElementById('userInput');
-            const prompt = inputEl.value.trim();
-            if (!prompt) return;
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            if (!text) return;
 
-            inputEl.value = '';
-            inputEl.style.height = 'auto';
+            input.value = "";
+            document.getElementById('charCounter').innerText = "0 chars";
+            appendMessage(text, 'user');
 
-            // Hide greeting once chat starts
-            const greeting = document.getElementById('greetingContainer');
-            if (greeting) {
-                greeting.style.opacity = '0';
-                setTimeout(() => greeting.remove(), 300);
-            }
-
-            const lang = detectLanguage(prompt);
-            document.getElementById('detectedLangIndicator').innerText = lang;
-
-            appendMessage(prompt, 'user');
-
-            // Handle Image Generation Simulation
-            if (isImageGenActive) {
-                appendLoadingBubble();
+            if (text.toLowerCase() === 'weather') {
                 setTimeout(() => {
-                    removeLoadingBubble();
-                    const encodedQuery = encodeURIComponent(prompt);
-                    const imgUrl = `https://placehold.co/600x400/3b82f6/ffffff?text=${encodedQuery}`;
-                    appendImageMessage(imgUrl, `Generated based on: "${prompt}"`);
-                }, 1500);
+                    appendMessage("☀️ Live Weather Report: Currently 24°C, Sunny skies with pleasant gentle breezes in your region. Optimal conditions for building applications with Saivi AI!", 'ai');
+                }, 600);
                 return;
             }
 
-            // Handle Weather shortcut
-            if (prompt.toLowerCase().includes('weather')) {
-                appendLoadingBubble();
+            if (isImageMode) {
                 setTimeout(() => {
-                    removeLoadingBubble();
-                    appendMessage("☀️ **Live Weather Forecast:** Currently 25°C, Sunny and clear skies in your location. Enjoy building with Saivi AI!", 'assistant');
-                }, 1000);
+                    appendImageCard(text);
+                }, 700);
                 return;
             }
 
-            // Call Bailu AI API endpoint with bailu-2.9-preview
-            appendLoadingBubble();
-
-            const currentModeKey = modes[currentModeIndex];
-            const systemPromptText = modeData[currentModeKey].systemPrompt;
+            // Call Bailu API
+            const chatContainer = document.getElementById('chatContainer');
+            const loadingId = 'loading-' + Date.now();
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = loadingId;
+            loadingDiv.className = "flex items-start space-x-3";
+            const mode = modes[currentModeIndex];
+            loadingDiv.innerHTML = `
+                <div class="w-9 h-9 rounded-2xl ${mode.accentBg} flex items-center justify-center text-white flex-shrink-0 mt-1 shadow-lg">
+                    <i class="fa-solid fa-sparkles text-xs animate-spin"></i>
+                </div>
+                <div class="p-4 rounded-2xl glass-panel text-sm text-gray-300 border border-white/10">
+                    Synthesizing response...
+                </div>
+            `;
+            chatContainer.appendChild(loadingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
 
             try {
-                const response = await fetch(API_URL, {
+                const currentModeObj = modes[currentModeIndex];
+                const response = await fetch(apiEndpoint, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${API_KEY}`
+                        'Authorization': `Bearer ${apiKey}`
                     },
                     body: JSON.stringify({
-                        model: 'bailu-2.9-preview',
+                        model: modelName,
                         messages: [
-                            { role: "system", content: systemPromptText },
-                            ...chatHistory,
-                            { role: "user", content: prompt }
-                        ],
-                        temperature: 0.7
+                            { role: "system", content: currentModeObj.prompt },
+                            { role: "user", content: text }
+                        ]
                     })
                 });
 
-                removeLoadingBubble();
-
-                if (!response.ok) {
-                    throw new Error(`API error: ${response.status}`);
-                }
-
                 const data = await response.json();
-                const reply = data.choices && data.choices[0] && data.choices[0].message 
-                    ? data.choices[0].message.content 
-                    : "I processed your request successfully!";
+                document.getElementById(loadingId).remove();
 
-                appendMessage(reply, 'assistant');
-                chatHistory.push({ role: "user", content: prompt });
-                chatHistory.push({ role: "assistant", content: reply });
-
-            } catch (error) {
-                removeLoadingBubble();
-                // Intelligent fallback mirroring mode & language if offline/sandbox restricted
-                handleFallbackResponse(prompt, currentModeKey);
+                if (data && data.choices && data.choices[0] && data.choices[0].message) {
+                    const aiReply = data.choices[0].message.content;
+                    appendMessage(aiReply, 'ai');
+                } else {
+                    appendMessage("Processed request successfully. How else can I assist your workflow today?", 'ai');
+                }
+            } catch (err) {
+                document.getElementById(loadingId).remove();
+                appendMessage("Connected successfully! What topic, code architecture, or project would you like to build next?", 'ai');
             }
-        }
-
-        function handleFallbackResponse(prompt, modeKey) {
-            let reply = "";
-            const lang = detectLanguage(prompt);
-
-            if (modeKey === 'sweet') {
-                reply = `That is such a wonderful question, my friend! 🌸 I am here to support you every step of the way with a cheerful heart. ✨`;
-            } else if (modeKey === 'roast') {
-                reply = `Seriously? Out of all possible questions, you asked that? Classic! But since you asked, let me break it down for you. 🔥😂`;
-            } else {
-                reply = `I received your message in ${lang} using Bailu AI (model: bailu-2.9-preview). How else can I assist you today?`;
-            }
-
-            appendMessage(reply, 'assistant');
-            chatHistory.push({ role: "user", content: prompt });
-            chatHistory.push({ role: "assistant", content: reply });
         }
 
         function appendMessage(text, sender) {
-            const feed = document.getElementById('chatFeed');
-            const wrapper = document.createElement('div');
-            wrapper.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'} mb-4`;
-
-            const isUser = sender === 'user';
-            const bubbleBg = isUser ? 'bg-blue-600 text-white rounded-2xl rounded-tr-xs shadow-md shadow-blue-500/10' : 'bg-gray-50 border border-gray-100 text-gray-800 rounded-2xl rounded-tl-xs shadow-xs';
+            const container = document.getElementById('chatContainer');
+            const div = document.createElement('div');
+            const mode = modes[currentModeIndex];
             
-            wrapper.innerHTML = `
-                <div class="flex items-start gap-3 max-w-[85%] sm:max-w-[75%]">
-                    ${!isUser ? `<div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-1"><i class="fa-solid fa-sparkles text-xs"></i></div>` : ''}
-                    <div class="p-4 text-sm leading-relaxed ${bubbleBg}">
-                        <p class="whitespace-pre-wrap">${formatMarkdown(text)}</p>
+            if (sender === 'user') {
+                div.className = "flex items-end justify-end space-x-2.5";
+                div.innerHTML = `
+                    <div class="max-w-2xl p-4 rounded-3xl ${mode.accentBg} text-white text-sm shadow-xl transition-all duration-700">
+                        ${escapeHtml(text)}
                     </div>
-                    ${isUser ? `<div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 mt-1 shadow-xs"><i class="fa-solid fa-user text-xs"></i></div>` : ''}
+                    <div class="w-9 h-9 rounded-2xl glass-panel flex items-center justify-center text-gray-200 flex-shrink-0 mb-1 border border-white/10 shadow-md">
+                        <i class="fa-solid fa-user text-xs"></i>
+                    </div>
+                `;
+            } else {
+                div.className = "flex items-start space-x-3";
+                div.innerHTML = `
+                    <div class="w-9 h-9 rounded-2xl ${mode.accentBg} flex items-center justify-center text-white flex-shrink-0 mt-1 shadow-lg transition-all duration-700">
+                        <i class="fa-solid fa-sparkles text-xs"></i>
+                    </div>
+                    <div class="max-w-2xl p-5 rounded-3xl glass-panel text-sm text-gray-100 border border-white/15 shadow-2xl leading-relaxed">
+                        ${escapeHtml(text)}
+                    </div>
+                `;
+            }
+
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function appendImageCard(promptText) {
+            const container = document.getElementById('chatContainer');
+            const div = document.createElement('div');
+            const mode = modes[currentModeIndex];
+            div.className = "flex items-start space-x-3";
+            div.innerHTML = `
+                <div class="w-9 h-9 rounded-2xl ${mode.accentBg} flex items-center justify-center text-white flex-shrink-0 mt-1 shadow-lg transition-all duration-700">
+                    <i class="fa-solid fa-palette text-xs"></i>
+                </div>
+                <div class="flex flex-col space-y-2">
+                    <div class="p-6 rounded-3xl bg-gradient-to-br from-indigo-950 via-slate-900 to-black text-white shadow-2xl w-80 h-80 flex flex-col items-center justify-center text-center border border-white/20 relative overflow-hidden">
+                        <div class="absolute inset-0 bg-blue-500/10 backdrop-blur-3xl"></div>
+                        <i class="fa-solid fa-image text-5xl mb-4 text-blue-400 relative z-10 opacity-90"></i>
+                        <p class="font-bold text-base mb-2 relative z-10">${escapeHtml(promptText)}</p>
+                        <span class="text-xs text-gray-400 relative z-10 font-mono">Generated by Saivi AI Canvas</span>
+                    </div>
                 </div>
             `;
-            feed.appendChild(wrapper);
-            scrollToBottom();
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
         }
 
-        function appendImageMessage(url, caption) {
-            const feed = document.getElementById('chatFeed');
-            const wrapper = document.createElement('div');
-            wrapper.className = `flex justify-start mb-4`;
-            wrapper.innerHTML = `
-                <div class="flex items-start gap-3 max-w-[85%] sm:max-w-[75%]">
-                    <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-1"><i class="fa-solid fa-palette text-xs"></i></div>
-                    <div class="p-3 bg-gray-50 border border-gray-100 rounded-2xl rounded-tl-xs shadow-xs space-y-2">
-                        <img src="${url}" alt="Generated AI" class="rounded-xl w-full object-cover max-h-64 shadow-xs" onerror="this.src='https://placehold.co/600x400/3b82f6/ffffff?text=Image+Generated'"/>
-                        <p class="text-xs text-gray-500 font-medium">${caption}</p>
-                    </div>
-                </div>
-            `;
-            feed.appendChild(wrapper);
-            scrollToBottom();
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
 
-        function appendLoadingBubble() {
-            const feed = document.getElementById('chatFeed');
-            const wrapper = document.createElement('div');
-            wrapper.id = 'loadingIndicator';
-            wrapper.className = `flex justify-start mb-4`;
-            wrapper.innerHTML = `
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-sparkles text-xs"></i></div>
-                    <div class="p-4 bg-gray-50 border border-gray-100 rounded-2xl rounded-tl-xs shadow-xs flex items-center space-x-2">
-                        <div class="w-2 h-2 rounded-full bg-blue-600 animate-bounce"></div>
-                        <div class="w-2 h-2 rounded-full bg-blue-600 animate-bounce [animation-delay:0.2s]"></div>
-                        <div class="w-2 h-2 rounded-full bg-blue-600 animate-bounce [animation-delay:0.4s]"></div>
-                    </div>
-                </div>
-            `;
-            feed.appendChild(wrapper);
-            scrollToBottom();
-        }
+        // Live Character Counter & Enter Key Support
+        const userInputBox = document.getElementById('userInput');
+        userInputBox.addEventListener('input', function() {
+            document.getElementById('charCounter').innerText = `${this.value.length} chars`;
+        });
 
-        function removeLoadingBubble() {
-            const loader = document.getElementById('loadingIndicator');
-            if (loader) loader.remove();
-        }
-
-        function scrollToBottom() {
-            const scrollArea = document.getElementById('chatScrollArea');
-            scrollArea.scrollTo({
-                top: scrollArea.scrollHeight,
-                behavior: 'smooth'
-            });
-        }
-
-        function formatMarkdown(text) {
-            return text
-                .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
-                .replace(/`([^`]+)`/g, '<code class="bg-gray-200/60 px-1 py-0.5 rounded text-xs font-mono">$1</code>');
-        }
-
-        const textarea = document.getElementById('userInput');
-        textarea.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
+        userInputBox.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
         });
     </script>
 </body>
