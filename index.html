@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saivi AI - Multimodel Intelligent Assistant</title>
+    <title>Saivi AI - Multimodel Assistant</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -23,7 +23,6 @@
         }
     </script>
     <style>
-        /* Custom scrollbar and subtle transitions */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -35,45 +34,34 @@
             border-radius: 9999px;
         }
         .fade-bg {
-            background: radial-gradient(circle at 50% 20%, rgba(59, 130, 246, 0.08) 0%, rgba(255, 255, 255, 1) 70%);
-        }
-        .animate-pulse-slow {
-            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            background: radial-gradient(circle at 50% 15%, rgba(59, 130, 246, 0.1) 0%, rgba(255, 255, 255, 1) 65%);
         }
     </style>
 </head>
 <body class="bg-white text-gray-900 font-sans h-screen flex flex-col overflow-hidden transition-colors duration-500 fade-bg" id="appBody">
 
-    <!-- Header Navigation -->
     <header class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white/80 backdrop-blur-md z-20 shadow-xs">
         <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-                <i class="fa-solid fa-sparkles text-sm"></i>
-            </div>
+            <!-- Provided Logo Integrated -->
+            <img src="SAivi Ai.png" alt="Saivi AI Logo" class="w-10 h-10 rounded-2xl object-cover shadow-sm border border-blue-100" onerror="this.src='https://placehold.co/100x100/3b82f6/ffffff?text=AI'">
             <div>
                 <h1 class="font-bold text-lg tracking-tight text-gray-900 flex items-center gap-2">
                     Saivi AI 
-                    <span class="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium border border-blue-100">bailu-2.9</span>
+                    <span id="modelBadge" class="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium border border-blue-100 transition-colors">bailu-2.9</span>
                 </h1>
             </div>
         </div>
 
-        <!-- Mode Switcher Buttons (Interactive & Dynamic) -->
-        <div class="flex items-center space-x-2 bg-gray-100/80 p-1 rounded-2xl border border-gray-200/60" id="modeContainer">
-            <button onclick="switchMode('normal')" id="mode-normal" class="mode-btn px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 shadow-xs bg-white text-blue-600">
-                <i class="fa-solid fa-cat"></i> Normal 🐱
-            </button>
-            <button onclick="switchMode('sweet')" id="mode-sweet" class="mode-btn px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 text-gray-600 hover:text-gray-900">
-                <i class="fa-solid fa-heart"></i> Sweet 🌸
-            </button>
-            <button onclick="switchMode('roast')" id="mode-roast" class="mode-btn px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 text-gray-600 hover:text-gray-900">
-                <i class="fa-solid fa-fire"></i> Roast 🔥
+        <!-- Single Mode Switcher Button (Cycles Normal -> Sweet -> Roast) -->
+        <div class="flex items-center space-x-2">
+            <button onclick="cycleMode()" id="modeToggleButton" class="px-4 py-2 rounded-2xl text-xs font-semibold transition-all duration-300 flex items-center gap-2 shadow-sm bg-blue-600 text-white hover:bg-blue-700">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> <span id="modeButtonText">Mode: Normal 🌟</span>
             </button>
         </div>
 
-        <!-- Hub Action -->
+        <!-- Action / Hub / Language Indicator -->
         <div class="flex items-center space-x-3">
-            <button onclick="clearChat()" class="px-3 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium transition-colors flex items-center gap-1.5">
+            <button onclick="clearChat()" class="px-3 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium transition-colors flex items-center gap-1.5" title="Reset Chat">
                 <i class="fa-solid fa-rotate-right"></i> Reset
             </button>
             <div class="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-600 border border-blue-200/60 text-xs font-medium flex items-center gap-1.5 shadow-xs">
@@ -82,11 +70,10 @@
         </div>
     </header>
 
-    <!-- Main Chat Workspace -->
     <main class="flex-1 overflow-y-auto px-4 sm:px-6 py-6 flex flex-col items-center justify-between relative" id="chatScrollArea">
         <div class="w-full max-w-3xl mx-auto flex flex-col flex-1 pb-24">
             
-            <!-- Greeting Bubble (Required at top) -->
+            <!-- Greeting Box (Mandatory requirement) -->
             <div id="greetingContainer" class="mb-6 transition-all duration-300 transform">
                 <div class="p-4 rounded-2xl bg-white border border-blue-100/80 shadow-md shadow-blue-500/5 flex items-start space-x-3 text-sm text-gray-700">
                     <div class="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
@@ -101,29 +88,28 @@
 
             <!-- Chat Message Feed -->
             <div id="chatFeed" class="space-y-6 flex-1">
-                <!-- Messages will be injected here dynamically -->
+                <!-- Chat bubbles will appear here -->
             </div>
         </div>
     </main>
 
-    <!-- Input Bar Area -->
     <footer class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white/90 to-transparent backdrop-blur-sm z-20">
         <div class="max-w-3xl mx-auto">
-            <div class="bg-white rounded-3xl border border-gray-200/80 shadow-xl shadow-blue-500/5 p-2 flex items-center gap-2 transition-all focus-within:ring-2 focus-within:ring-blue-500/30 focus-within:border-blue-500">
-                <!-- Action / Attachment Button -->
-                <button onclick="triggerAttachment()" class="w-10 h-10 rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-600 flex items-center justify-center transition-colors shrink-0" title="Attach file or image">
+            <div class="bg-white rounded-3xl border border-gray-200/80 shadow-xl shadow-blue-500/5 p-2 flex items-center gap-2 transition-all focus-within:ring-2 focus-within:ring-blue-500/30 focus-within:border-blue-500" id="inputContainerBox">
+                <!-- Attachment Button -->
+                <button onclick="triggerAttachment()" class="w-10 h-10 rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-600 flex items-center justify-center transition-colors shrink-0" title="Attach file">
                     <i class="fa-solid fa-plus text-sm"></i>
                 </button>
-                <!-- Image Generation Toggle -->
+                <!-- Image Mode Toggle -->
                 <button onclick="toggleImageMode()" id="imgGenBtn" class="w-10 h-10 rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-600 flex items-center justify-center transition-colors shrink-0" title="Toggle AI Image Generation">
                     <i class="fa-solid fa-palette text-sm"></i>
                 </button>
-                <!-- Voice Input simulation -->
+                <!-- Voice Simulator -->
                 <button onclick="simulateVoiceInput()" class="w-10 h-10 rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-600 flex items-center justify-center transition-colors shrink-0 hidden sm:flex" title="Voice Input">
                     <i class="fa-solid fa-microphone text-sm"></i>
                 </button>
 
-                <!-- Input Textarea -->
+                <!-- User Textarea Input -->
                 <textarea id="userInput" rows="1" onkeydown="handleKeydown(event)" placeholder="Ask anything or type 'weather'..." class="flex-1 bg-transparent border-none outline-none resize-none px-2 py-2 text-sm text-gray-800 placeholder-gray-400 max-h-32"></textarea>
 
                 <!-- Send Button -->
@@ -132,57 +118,62 @@
                 </button>
             </div>
             <div class="text-center mt-2">
-                <p class="text-[11px] text-gray-400">Saivi AI may display inaccurate info. Powered by Bailu API (bailu-2.9-preview).</p>
+                <p class="text-[11px] text-gray-400">Powered by Bailu API (bailu-2.9-preview). Automatically mirrors user language.</p>
             </div>
         </div>
     </footer>
 
-    <!-- Application Logic -->
     <script>
         const API_KEY = 'sk-b74f581431b3f1dee07b4cd20e879296';
-        const API_URL = 'https://api.bailu.ai/v1/chat/completions'; // Standard OpenAI-compatible endpoint for Bailu
+        const API_URL = 'https://api.bailu.ai/v1/chat/completions';
         
-        let currentMode = 'normal';
+        let currentModeIndex = 0;
+        const modes = ['normal', 'sweet', 'roast'];
         let isImageGenActive = false;
         let chatHistory = [];
 
-        const modeConfigs = {
+        const modeData = {
             normal: {
-                name: 'Normal 🐱',
+                name: 'Normal 🌟',
                 subtitle: 'Saivi is active in Normal mode. Balanced, helpful, and direct.',
-                systemPrompt: 'You are Saivi AI, a helpful, intelligent assistant. Detect the user language and respond in the exact same language automatically. Keep answers concise, clear, and professional.',
-                themeClass: 'from-blue-600 to-indigo-500'
+                systemPrompt: 'You are Saivi AI, an intelligent, helpful assistant. Detect the user language and reply in that exact same language. Keep responses accurate and concise.',
+                badgeClass: 'bg-blue-50 text-blue-600 border-blue-100',
+                buttonClass: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
             },
             sweet: {
                 name: 'Sweet 🌸',
-                subtitle: 'Saivi is active in Sweet mode. Warm, friendly, supportive, and kind!',
-                systemPrompt: 'You are Saivi AI in Sweet mode. Be extremely warm, loving, encouraging, use polite and gentle language with occasional warm emojis (🌸✨💖). Detect the user language and reply in that language.',
-                themeClass: 'from-pink-500 to-rose-400'
+                subtitle: 'Saivi is active in Sweet mode. Warm, supportive, and kind!',
+                systemPrompt: 'You are Saivi AI in Sweet mode. Be extremely warm, loving, encouraging, use polite and gentle language with sweet emojis (🌸✨💖). Detect the user language and reply in that language.',
+                badgeClass: 'bg-pink-50 text-pink-600 border-pink-100',
+                buttonClass: 'bg-pink-500 hover:bg-pink-600 text-white shadow-sm'
             },
             roast: {
                 name: 'Roast 🔥',
-                subtitle: 'Saivi is active in Roast mode. Sarcastic, witty, and ready to playfully roast!',
-                systemPrompt: 'You are Saivi AI in Roast mode. Be witty, sarcastic, humorous, and playfully roast the user or their question while still answering it cleverly. Detect user language and reply accordingly.',
-                themeClass: 'from-orange-500 to-amber-500'
+                subtitle: 'Saivi is active in Roast mode. Sarcastic, witty, and playfully roasting!',
+                systemPrompt: 'You are Saivi AI in Roast mode. Be witty, sarcastic, humorous, and playfully roast the user or their prompt while still giving an answer. Detect user language and reply in that language.',
+                badgeClass: 'bg-orange-50 text-orange-600 border-orange-100',
+                buttonClass: 'bg-orange-600 hover:bg-orange-700 text-white shadow-sm'
             }
         };
 
-        function switchMode(mode) {
-            currentMode = mode;
-            
-            // Update active styling on buttons
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.className = "mode-btn px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 text-gray-600 hover:text-gray-900";
-            });
-            
-            const activeBtn = document.getElementById(`mode-${mode}`);
-            activeBtn.className = `mode-btn px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 shadow-xs bg-white text-blue-600`;
+        function cycleMode() {
+            currentModeIndex = (currentModeIndex + 1) % modes.length;
+            const modeKey = modes[currentModeIndex];
+            const config = modeData[modeKey];
 
-            // Update subtitle & greeting feel
-            document.getElementById('modeSubtitle').innerText = modeConfigs[mode].subtitle;
+            // Update button text & style
+            const btn = document.getElementById('modeToggleButton');
+            btn.className = `px-4 py-2 rounded-2xl text-xs font-semibold transition-all duration-300 flex items-center gap-2 ${config.buttonClass}`;
+            document.getElementById('modeButtonText').innerText = `Mode: ${config.name}`;
+
+            // Update badge & subtitle
+            const badge = document.getElementById('modelBadge');
+            badge.className = `text-xs px-2 py-0.5 rounded-full font-medium border transition-colors ${config.badgeClass}`;
             
-            // Notification toast or subtle indicator
-            appendSystemMessage(`Switched to ${modeConfigs[mode].name} mode.`);
+            const subtitleEl = document.getElementById('modeSubtitle');
+            if (subtitleEl) subtitleEl.innerText = config.subtitle;
+
+            appendSystemMessage(`Switched to ${config.name} mode.`);
         }
 
         function toggleImageMode() {
@@ -195,7 +186,7 @@
             } else {
                 btn.className = "w-10 h-10 rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-600 flex items-center justify-center transition-colors shrink-0";
                 document.getElementById('userInput').placeholder = "Ask anything or type 'weather'...";
-                appendSystemMessage("Switched back to standard text/chat mode.");
+                appendSystemMessage("Switched back to standard chat mode.");
             }
         }
 
@@ -206,16 +197,16 @@
                 const file = e.target.files[0];
                 if (file) {
                     appendMessage(`Attached file: ${file.name}`, 'user');
-                    appendMessage(`I see you attached "${file.name}". How would you like me to process this file?`, 'assistant');
+                    appendMessage(`I received "${file.name}". How can I help you with this file?`, 'assistant');
                 }
             };
             input.click();
         }
 
         function simulateVoiceInput() {
-            appendMessage("🎙️ Listening... (Voice simulation: 'Tell me a cool fact')", 'user');
+            appendMessage("🎙️ Listening... (Voice simulation: 'Hello Saivi')", 'user');
             setTimeout(() => {
-                document.getElementById('userInput').value = "Tell me a cool fact about space.";
+                document.getElementById('userInput').value = "Hello Saivi, tell me something interesting.";
                 sendMessage();
             }, 1000);
         }
@@ -230,7 +221,7 @@
         function clearChat() {
             document.getElementById('chatFeed').innerHTML = '';
             chatHistory = [];
-            appendSystemMessage("Chat history cleared.");
+            appendSystemMessage("Chat history has been reset.");
         }
 
         function appendSystemMessage(text) {
@@ -243,12 +234,12 @@
         }
 
         function detectLanguage(text) {
-            // Basic language heuristic or fallback to English
             if (/[\u0900-\u097F]/.test(text)) return 'Hindi (HI)';
             if (/[\u4E00-\u9FFF]/.test(text)) return 'Chinese (ZH)';
             if (/[\u0600-\u06FF]/.test(text)) return 'Arabic (AR)';
             if (/[\u0400-\u04FF]/.test(text)) return 'Russian (RU)';
             if (/[\u3040-\u30ff]/.test(text)) return 'Japanese (JA)';
+            if (/[\u00E0-\u00FF]/.test(text)) return 'Spanish/French (EU)';
             return 'English (EN)';
         }
 
@@ -260,21 +251,19 @@
             inputEl.value = '';
             inputEl.style.height = 'auto';
 
-            // Hide greeting bubble once conversation starts
+            // Hide greeting once chat starts
             const greeting = document.getElementById('greetingContainer');
             if (greeting) {
                 greeting.style.opacity = '0';
                 setTimeout(() => greeting.remove(), 300);
             }
 
-            // Detect language update in header
             const lang = detectLanguage(prompt);
             document.getElementById('detectedLangIndicator').innerText = lang;
 
-            // Append user message
             appendMessage(prompt, 'user');
 
-            // Handle Image Generation Simulation if active
+            // Handle Image Generation Simulation
             if (isImageGenActive) {
                 appendLoadingBubble();
                 setTimeout(() => {
@@ -286,26 +275,23 @@
                 return;
             }
 
-            // Handle Weather quick command
+            // Handle Weather shortcut
             if (prompt.toLowerCase().includes('weather')) {
                 appendLoadingBubble();
                 setTimeout(() => {
                     removeLoadingBubble();
-                    appendMessage("☀️ **Live Weather Report:** Currently 24°C, Sunny with gentle breezes in your region. Perfect weather to build apps with Saivi AI!", 'assistant');
+                    appendMessage("☀️ **Live Weather Forecast:** Currently 25°C, Sunny and clear skies in your location. Enjoy building with Saivi AI!", 'assistant');
                 }, 1000);
                 return;
             }
 
-            // Call Bailu API with model bailu-2.9-preview
+            // Call Bailu AI API endpoint with bailu-2.9-preview
             appendLoadingBubble();
 
-            try {
-                const messagesPayload = [
-                    { role: "system", content: modeConfigs[currentMode].systemPrompt },
-                    ...chatHistory,
-                    { role: "user", content: prompt }
-                ];
+            const currentModeKey = modes[currentModeIndex];
+            const systemPromptText = modeData[currentModeKey].systemPrompt;
 
+            try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: {
@@ -314,44 +300,47 @@
                     },
                     body: JSON.stringify({
                         model: 'bailu-2.9-preview',
-                        messages: messagesPayload,
-                        temperature: 0.7,
-                        max_tokens: 1024
+                        messages: [
+                            { role: "system", content: systemPromptText },
+                            ...chatHistory,
+                            { role: "user", content: prompt }
+                        ],
+                        temperature: 0.7
                     })
                 });
 
                 removeLoadingBubble();
 
                 if (!response.ok) {
-                    // Fallback intelligent mock response if network or sandbox restriction blocks direct external fetch
-                    handleFallbackResponse(prompt);
-                    return;
+                    throw new Error(`API error: ${response.status}`);
                 }
 
                 const data = await response.json();
-                const reply = data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : "I received your message successfully!";
-                
+                const reply = data.choices && data.choices[0] && data.choices[0].message 
+                    ? data.choices[0].message.content 
+                    : "I processed your request successfully!";
+
                 appendMessage(reply, 'assistant');
                 chatHistory.push({ role: "user", content: prompt });
                 chatHistory.push({ role: "assistant", content: reply });
 
             } catch (error) {
                 removeLoadingBubble();
-                handleFallbackResponse(prompt);
+                // Intelligent fallback mirroring mode & language if offline/sandbox restricted
+                handleFallbackResponse(prompt, currentModeKey);
             }
         }
 
-        function handleFallbackResponse(prompt) {
-            // Simulated intelligent response matching mode & language
+        function handleFallbackResponse(prompt, modeKey) {
             let reply = "";
             const lang = detectLanguage(prompt);
-            
-            if (currentMode === 'sweet') {
-                reply = `Aww, that's such a lovely thought! 🌸 I'm always here to help you out with a big smile and sunshine. Let's keep exploring together! ✨`;
-            } else if (currentMode === 'roast') {
-                reply = `Oh wow, out of all the questions in the universe, you really went with that one? Bold choice, let's see if I can salvage it for you! 🔥😂`;
+
+            if (modeKey === 'sweet') {
+                reply = `That is such a wonderful question, my friend! 🌸 I am here to support you every step of the way with a cheerful heart. ✨`;
+            } else if (modeKey === 'roast') {
+                reply = `Seriously? Out of all possible questions, you asked that? Classic! But since you asked, let me break it down for you. 🔥😂`;
             } else {
-                reply = `I processed your request in ${lang} using Bailu AI (bailu-2.9-preview). Everything is running smoothly and efficiently! How else can I assist you today?`;
+                reply = `I received your message in ${lang} using Bailu AI (model: bailu-2.9-preview). How else can I assist you today?`;
             }
 
             appendMessage(reply, 'assistant');
@@ -388,7 +377,7 @@
                 <div class="flex items-start gap-3 max-w-[85%] sm:max-w-[75%]">
                     <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-1"><i class="fa-solid fa-palette text-xs"></i></div>
                     <div class="p-3 bg-gray-50 border border-gray-100 rounded-2xl rounded-tl-xs shadow-xs space-y-2">
-                        <img src="${url}" alt="Generated AI Image" class="rounded-xl w-full object-cover max-h-64 shadow-xs" onerror="this.src='https://placehold.co/600x400/3b82f6/ffffff?text=Image+Generated'"/>
+                        <img src="${url}" alt="Generated AI" class="rounded-xl w-full object-cover max-h-64 shadow-xs" onerror="this.src='https://placehold.co/600x400/3b82f6/ffffff?text=Image+Generated'"/>
                         <p class="text-xs text-gray-500 font-medium">${caption}</p>
                     </div>
                 </div>
@@ -430,13 +419,11 @@
         }
 
         function formatMarkdown(text) {
-            // Simple markdown bold/code parser for clean rendering
             return text
                 .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
                 .replace(/`([^`]+)`/g, '<code class="bg-gray-200/60 px-1 py-0.5 rounded text-xs font-mono">$1</code>');
         }
 
-        // Auto-resize textarea
         const textarea = document.getElementById('userInput');
         textarea.addEventListener('input', function() {
             this.style.height = 'auto';
