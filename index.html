@@ -112,7 +112,8 @@
     <!-- JavaScript Engine -->
     <script>
         const apiKey = "sk-b74f581431b3f1dee07b4cd20e879296";
-        const apiEndpoint = "https://corsproxy.io/?https://api.bailu.ai/v1/chat/completions";
+        // Updated with official endpoint from your Bailu dashboard
+        const apiEndpoint = "https://corsproxy.io/?https://bailucode.com/openapi/v1/chat/completions";
         const modelName = "bailu-2.9-preview";
 
         let currentModeIndex = 0;
@@ -144,7 +145,6 @@
             
             document.getElementById('sendBtn').className = `w-9 h-9 rounded-full ${mode.bubbleBg} flex items-center justify-center transition shadow-md`;
 
-            // Clean announcement message
             appendSystemNotice(`Mode changed from ${prevModeName.replace(/[^a-zA-Z]/g, '')} to ${mode.name.replace(/[^a-zA-Z]/g, '')}`);
         }
 
@@ -231,7 +231,6 @@
                 const chatContainer = document.getElementById('chatContainer');
                 chatContainer.classList.remove('hidden');
                 
-                // Shift main container alignment from center to top-scrollable
                 const mainContainer = document.getElementById('mainContainer');
                 mainContainer.style.justifyContent = 'flex-start';
             }
@@ -267,7 +266,7 @@
                 return;
             }
 
-            // Call API via Proxy
+            // Call API via Proxy with official endpoint
             const chatContainer = document.getElementById('chatContainer');
             const loadingId = 'loading-' + Date.now();
             const loadingDiv = document.createElement('div');
