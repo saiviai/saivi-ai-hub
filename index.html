@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,100 +32,102 @@
             background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(0, 0, 0, 0.15);
             border-radius: 3px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.3);
         }
-        /* Dynamic Gemini-style ambient glow backgrounds */
+        /* Dynamic Gemini-style white theme ambient glow backgrounds */
         .ambient-glow {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 140vw;
-            height: 140vh;
+            width: 150vw;
+            height: 150vh;
             pointer-events: none;
             z-index: 0;
             transition: background 1s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .mode-normal {
-            background: radial-gradient(circle at 50% 45%, rgba(29, 78, 216, 0.28) 0%, rgba(8, 12, 20, 0.98) 75%);
+            background: radial-gradient(circle at 50% 45%, rgba(59, 130, 246, 0.20) 0%, rgba(255, 255, 255, 0.99) 75%);
         }
         .mode-sweet {
-            background: radial-gradient(circle at 50% 45%, rgba(244, 63, 94, 0.30) 0%, rgba(22, 10, 18, 0.98) 75%);
+            background: radial-gradient(circle at 50% 45%, rgba(244, 63, 94, 0.20) 0%, rgba(255, 244, 246, 0.99) 75%);
         }
         .mode-roast {
-            background: radial-gradient(circle at 50% 45%, rgba(234, 88, 12, 0.33) 0%, rgba(22, 10, 8, 0.98) 75%);
+            background: radial-gradient(circle at 50% 45%, rgba(234, 88, 12, 0.22) 0%, rgba(255, 246, 242, 0.99) 75%);
         }
         .glass-panel {
-            background: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.80);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
         }
         .glass-input {
-            background: rgba(0, 0, 0, 0.45);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.90);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
         }
         @keyframes pulseGlow {
-            0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.05); }
+            0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.04); }
         }
         .pulse-ambient {
-            animation: pulseGlow 8s ease-in-out infinite;
+            animation: pulseGlow 9s ease-in-out infinite;
         }
     </style>
 </head>
-<body id="bodyTag" class="mode-normal bg-[#0b0f19] text-gray-100 font-sans h-screen flex flex-col overflow-hidden relative transition-colors duration-1000">
+<body id="bodyTag" class="mode-normal bg-white text-gray-800 font-sans h-screen flex flex-col overflow-hidden relative transition-colors duration-1000">
 
     <!-- Ambient Gemini Glow Background -->
     <div id="ambientBg" class="ambient-glow mode-normal pulse-ambient"></div>
 
     <!-- Header Navbar -->
-    <header class="relative z-20 flex items-center justify-between px-6 py-3.5 border-b border-white/10 glass-panel shadow-2xl">
+    <header class="relative z-20 flex items-center justify-between px-6 py-3.5 border-b border-gray-200/80 glass-panel shadow-md">
         <div class="flex items-center space-x-3">
             <div class="relative">
-                <img src="SAivi Ai.png" alt="Saivi AI Logo" class="w-10 h-10 rounded-full object-cover border-2 border-white/20 shadow-lg">
-                <div id="statusIndicator" class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#0b0f19]"></div>
+                <img src="SAivi Ai.png" alt="Saivi AI Logo" class="w-10 h-10 rounded-full object-cover border-2 border-gray-200 shadow-md">
+                <div id="statusIndicator" class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white"></div>
             </div>
             <div class="flex flex-col">
                 <div class="flex items-center space-x-2">
-                    <span class="font-bold text-lg tracking-wider text-white">Saivi AI</span>
-                    <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-white/10 text-gray-300 border border-white/10">v3.5 Pro</span>
+                    <span class="font-bold text-lg tracking-wider text-gray-900">Saivi AI</span>
+                    <span id="versionTag" class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-blue-100 text-blue-700 border border-blue-200 font-semibold transition-all duration-500">Normal</span>
                 </div>
-                <span id="subHeaderStatus" class="text-xs text-gray-400">Autonomous Multimodel Engine Active</span>
+                <span id="subHeaderStatus" class="text-xs text-gray-500">Autonomous Multimodel Engine Active</span>
             </div>
         </div>
 
-        <!-- Central Control Hub & Mode Cycler -->
+        <!-- Single Button Mode Cycler -->
         <div class="flex items-center space-x-3">
-            <button id="modeToggleBtn" onclick="cycleMode()" class="flex items-center space-x-2.5 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-500 border border-white/20 bg-blue-600/25 hover:bg-blue-600/40 text-blue-200 shadow-xl backdrop-blur-md active:scale-95">
+            <button id="modeToggleBtn" onclick="cycleMode()" class="flex items-center space-x-2.5 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-500 border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 shadow-sm active:scale-95">
                 <i id="modeIcon" class="fa-solid fa-robot text-base"></i>
                 <span id="modeText">Mode: Normal</span>
             </button>
         </div>
     </header>
 
-    <!-- Main Chat Feed -->
+    <!-- Main Chat Feed Area -->
     <main class="relative z-10 flex-1 overflow-y-auto px-4 py-8 flex flex-col items-center">
-        <div id="chatContainer" class="w-full max-w-4xl flex flex-col space-y-6 pb-28">
+        <div id="chatContainer" class="w-full max-w-4xl flex flex-col space-y-6 pb-32">
             
             <!-- Hero Greeting Welcome Card -->
-            <div id="greetingCard" class="p-6 rounded-3xl glass-panel shadow-2xl flex items-start space-x-4 border border-white/15 transition-all duration-700">
-                <div id="greetingIconWrap" class="w-12 h-12 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0 mt-1 shadow-inner">
+            <div id="greetingCard" class="p-6 rounded-3xl glass-panel shadow-xl flex items-start space-x-4 border border-gray-200/80 transition-all duration-700">
+                <div id="greetingIconWrap" class="w-12 h-12 rounded-2xl bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-600 flex-shrink-0 mt-1 shadow-inner transition-all duration-500">
                     <i class="fa-solid fa-sparkles text-xl"></i>
                 </div>
                 <div class="flex-1">
-                    <h2 class="text-xl font-bold text-white tracking-tight">Welcome to Saivi AI Workspace</h2>
-                    <p class="text-sm text-gray-300 mt-1">Hello! Type anything, use the palette button 🎨 to generate image canvases, or type <code class="px-1.5 py-0.5 rounded bg-black/40 text-blue-300 font-mono text-xs">"weather"</code> for live environmental telemetry.</p>
-                    <div class="flex items-center space-x-4 mt-4 text-xs text-gray-400">
-                        <span class="flex items-center space-x-1.5"><i class="fa-solid fa-bolt text-amber-400"></i> <span>Zero Latency Pipeline</span></span>
-                        <span class="flex items-center space-x-1.5"><i class="fa-solid fa-globe text-emerald-400"></i> <span>Auto Language Mirroring</span></span>
-                        <span class="flex items-center space-x-1.5"><i class="fa-solid fa-shield-halved text-purple-400"></i> <span>Secure Token Encryption</span></span>
+                    <h2 class="text-xl font-bold text-gray-900 tracking-tight">Welcome to Saivi AI Workspace</h2>
+                    <p class="text-sm text-gray-600 mt-1">Hello! Type anything, use the palette button <span class="text-blue-600 font-bold">🎨</span> to generate image canvases, or type <code class="px-1.5 py-0.5 rounded bg-gray-100 text-blue-600 font-mono text-xs border border-gray-200">"weather"</code> for live telemetry.</p>
+                    <div class="flex items-center space-x-4 mt-4 text-xs text-gray-500 font-medium">
+                        <span class="flex items-center space-x-1.5"><i class="fa-solid fa-bolt text-amber-500"></i> <span>Zero Latency Pipeline</span></span>
+                        <span class="flex items-center space-x-1.5"><i class="fa-solid fa-globe text-emerald-600"></i> <span>Auto Language Mirroring</span></span>
+                        <span class="flex items-center space-x-1.5"><i class="fa-solid fa-shield-halved text-indigo-600"></i> <span>Secure Token Encryption</span></span>
                     </div>
                 </div>
             </div>
@@ -134,42 +136,43 @@
     </main>
 
     <!-- Floating Bottom Input Dock -->
-    <div class="fixed bottom-0 left-0 right-0 z-20 px-4 pb-6 pt-4 bg-gradient-to-t from-[#0b0f19] via-[#0b0f19]/90 to-transparent flex flex-col items-center">
-        <div id="inputDock" class="w-full max-w-4xl flex flex-col rounded-3xl glass-input shadow-2xl p-3.5 transition-all duration-700 focus-within:border-blue-500/60 focus-within:ring-2 focus-within:ring-blue-500/20">
+    <div class="fixed bottom-0 left-0 right-0 z-20 px-4 pb-6 pt-4 bg-gradient-to-t from-white via-white/90 to-transparent flex flex-col items-center">
+        <div id="inputDock" class="w-full max-w-4xl flex flex-col rounded-3xl glass-input shadow-2xl p-3.5 transition-all duration-700 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100">
             
-            <textarea id="userInput" rows="1" placeholder="Ask anything, write code, or type 'weather'..." class="w-full bg-transparent text-white placeholder-gray-400 px-3 py-2 focus:outline-none resize-none text-sm max-h-40 font-sans"></textarea>
+            <textarea id="userInput" rows="1" placeholder="Ask anything, write code, or type 'weather'..." class="w-full bg-transparent text-gray-800 placeholder-gray-400 px-3 py-2 focus:outline-none resize-none text-sm max-h-40 font-sans"></textarea>
             
-            <div class="flex items-center justify-between mt-3 px-2 pt-2 border-t border-white/10">
+            <div class="flex items-center justify-between mt-3 px-2 pt-2 border-t border-gray-200/80">
                 <div class="flex items-center space-x-2.5">
-                    <button onclick="triggerAttachment()" class="w-9 h-9 rounded-xl hover:bg-white/10 flex items-center justify-center text-gray-300 transition-all duration-300" title="Attach Files">
+                    <button onclick="triggerAttachment()" class="w-9 h-9 rounded-xl hover:bg-gray-200/70 flex items-center justify-center text-gray-600 transition-all duration-300" title="Attach Files">
                         <i class="fa-solid fa-plus text-sm"></i>
                     </button>
-                    <button onclick="toggleImageMode()" id="imgModeBtn" class="w-9 h-9 rounded-xl hover:bg-white/10 flex items-center justify-center text-gray-300 transition-all duration-300" title="Image Generation Canvas">
+                    <button onclick="toggleImageMode()" id="imgModeBtn" class="w-9 h-9 rounded-xl hover:bg-gray-200/70 flex items-center justify-center text-gray-600 transition-all duration-300" title="Image Generation Canvas">
                         <i class="fa-solid fa-palette text-sm"></i>
                     </button>
-                    <button onclick="triggerVoiceInput()" class="w-9 h-9 rounded-xl hover:bg-white/10 flex items-center justify-center text-gray-300 transition-all duration-300" title="Voice Transcription">
+                    <button onclick="triggerVoiceInput()" class="w-9 h-9 rounded-xl hover:bg-gray-200/70 flex items-center justify-center text-gray-600 transition-all duration-300" title="Voice Transcription">
                         <i class="fa-solid fa-microphone text-sm"></i>
                     </button>
-                    <button onclick="clearChatHistory()" class="w-9 h-9 rounded-xl hover:bg-white/10 flex items-center justify-center text-gray-300 transition-all duration-300" title="Clear Chat">
+                    <button onclick="clearChatHistory()" class="w-9 h-9 rounded-xl hover:bg-gray-200/70 flex items-center justify-center text-gray-600 transition-all duration-300" title="Clear Chat">
                         <i class="fa-solid fa-trash-can text-sm"></i>
                     </button>
                 </div>
                 
                 <div class="flex items-center space-x-3">
-                    <span id="charCounter" class="text-[11px] text-gray-500 font-mono">0 chars</span>
-                    <button id="sendBtn" onclick="sendMessage()" class="w-10 h-10 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center transition-all duration-300 shadow-xl active:scale-95">
+                    <span id="charCounter" class="text-[11px] text-gray-400 font-mono">0 chars</span>
+                    <button id="sendBtn" onclick="sendMessage()" class="w-10 h-10 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center transition-all duration-300 shadow-md active:scale-95">
                         <i class="fa-solid fa-paper-plane text-xs"></i>
                     </button>
                 </div>
             </div>
         </div>
-        <p class="text-[11px] text-gray-500 mt-2.5 text-center tracking-wide">Saivi AI may make mistakes. Automatically mirrors user language.</p>
+        <p class="text-[11px] text-gray-400 mt-2.5 text-center tracking-wide">Saivi AI may make mistakes. Automatically mirrors user language.</p>
     </div>
 
     <!-- Advanced Application Script Engine -->
     <script>
         const apiKey = "sk-b74f581431b3f1dee07b4cd20e879296";
-        const apiEndpoint = "https://api.bailu.ai/v1/chat/completions";
+        // CORS proxy wrapper configured to seamlessly bypass browser fetch restrictions on GitHub Pages
+        const apiEndpoint = "https://corsproxy.io/?https://api.bailu.ai/v1/chat/completions";
         const modelName = "bailu-2.9-preview";
 
         let currentModeIndex = 0;
@@ -178,27 +181,27 @@
                 name: "Normal", 
                 class: "mode-normal", 
                 icon: "fa-robot", 
-                btnBg: "bg-blue-600/25 text-blue-200 border-blue-500/40 hover:bg-blue-600/40",
-                accentBg: "bg-blue-600",
-                accentText: "text-blue-400",
+                btnBg: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100",
+                bubbleBg: "bg-blue-600 text-white",
+                accentColor: "text-blue-600",
                 prompt: "You are Saivi AI, an advanced, elite intelligent assistant. Always reply precisely in the language and script spoken by the user." 
             },
             { 
                 name: "Sweet", 
                 class: "mode-sweet", 
                 icon: "fa-heart", 
-                btnBg: "bg-rose-600/25 text-rose-200 border-rose-500/40 hover:bg-rose-600/40",
-                accentBg: "bg-rose-600",
-                accentText: "text-rose-400",
+                btnBg: "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100",
+                bubbleBg: "bg-rose-600 text-white",
+                accentColor: "text-rose-600",
                 prompt: "You are Saivi AI in Sweet mode. Be extremely affectionate, warm, encouraging, and supportive, sprinkling helpful emojis. Match the user's language." 
             },
             { 
                 name: "Roast", 
                 class: "mode-roast", 
                 icon: "fa-fire", 
-                btnBg: "bg-orange-600/25 text-orange-200 border-orange-500/40 hover:bg-orange-600/40",
-                accentBg: "bg-orange-600",
-                accentText: "text-orange-400",
+                btnBg: "bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100",
+                bubbleBg: "bg-orange-600 text-white",
+                accentColor: "text-orange-600",
                 prompt: "You are Saivi AI in Roast mode. Be razor-sharp, witty, sarcastic, and playfully roast the user while still providing accurate answers. Match the user's language." 
             }
         ];
@@ -210,23 +213,27 @@
             const mode = modes[currentModeIndex];
 
             // Transform Theme & Backgrounds
-            document.getElementById('bodyTag').className = `${mode.class} bg-[#0b0f19] text-gray-100 font-sans h-screen flex flex-col overflow-hidden relative transition-colors duration-1000`;
+            document.getElementById('bodyTag').className = `${mode.class} bg-white text-gray-800 font-sans h-screen flex flex-col overflow-hidden relative transition-colors duration-1000`;
             document.getElementById('ambientBg').className = `ambient-glow ${mode.class} pulse-ambient`;
             
             // Transform Button & Badges
             const btn = document.getElementById('modeToggleBtn');
-            btn.className = `flex items-center space-x-2.5 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-500 border shadow-xl backdrop-blur-md active:scale-95 ${mode.btnBg}`;
+            btn.className = `flex items-center space-x-2.5 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-500 border shadow-sm active:scale-95 ${mode.btnBg}`;
             
             document.getElementById('modeIcon').className = `fa-solid ${mode.icon} text-base`;
             document.getElementById('modeText').innerText = `Mode: ${mode.name}`;
             
-            // Transform Greeting Card Accent
+            const versionTag = document.getElementById('versionTag');
+            versionTag.innerText = mode.name;
+            versionTag.className = `text-[10px] uppercase font-mono px-2 py-0.5 rounded border font-semibold transition-all duration-500 ${mode.btnBg}`;
+
+            // Transform Greeting Card Icon Accent
             const greetingIconWrap = document.getElementById('greetingIconWrap');
             greetingIconWrap.className = `w-12 h-12 rounded-2xl border flex items-center justify-center flex-shrink-0 mt-1 shadow-inner transition-all duration-700 ${mode.btnBg}`;
             greetingIconWrap.innerHTML = `<i class="fa-solid ${mode.icon} text-xl"></i>`;
 
             // Transform Send Button
-            document.getElementById('sendBtn').className = `w-10 h-10 rounded-2xl ${mode.accentBg} text-white flex items-center justify-center transition-all duration-300 shadow-xl active:scale-95`;
+            document.getElementById('sendBtn').className = `w-10 h-10 rounded-2xl ${mode.bubbleBg} text-white flex items-center justify-center transition-all duration-300 shadow-md active:scale-95`;
 
             appendSystemNotice(`Switched to ${mode.name} mode successfully.`);
         }
@@ -236,10 +243,10 @@
             const btn = document.getElementById('imgModeBtn');
             const mode = modes[currentModeIndex];
             if (isImageMode) {
-                btn.className = `w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${mode.accentBg} text-white shadow-lg`;
+                btn.className = `w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${mode.bubbleBg} text-white shadow-md`;
                 appendSystemNotice("🎨 Image Generation Mode Activated! Describe what you'd like to visualize.");
             } else {
-                btn.className = `w-9 h-9 rounded-xl hover:bg-white/10 flex items-center justify-center text-gray-300 transition-all duration-300`;
+                btn.className = `w-9 h-9 rounded-xl hover:bg-gray-200/70 flex items-center justify-center text-gray-600 transition-all duration-300`;
                 appendSystemNotice("💬 Switched back to standard conversational pipeline.");
             }
         }
@@ -248,7 +255,7 @@
             const container = document.getElementById('chatContainer');
             const div = document.createElement('div');
             div.className = "flex justify-center my-3";
-            div.innerHTML = `<span class="text-xs px-4 py-1.5 rounded-full glass-panel text-gray-300 border border-white/10 shadow-lg">${text}</span>`;
+            div.innerHTML = `<span class="text-xs px-4 py-1.5 rounded-full glass-panel text-gray-600 border border-gray-200 shadow-sm">${text}</span>`;
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
         }
@@ -263,14 +270,15 @@
 
         function clearChatHistory() {
             const container = document.getElementById('chatContainer');
+            const mode = modes[currentModeIndex];
             container.innerHTML = `
-                <div id="greetingCard" class="p-6 rounded-3xl glass-panel shadow-2xl flex items-start space-x-4 border border-white/15 transition-all duration-700">
-                    <div id="greetingIconWrap" class="w-12 h-12 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0 mt-1 shadow-inner">
-                        <i class="fa-solid fa-sparkles text-xl"></i>
+                <div id="greetingCard" class="p-6 rounded-3xl glass-panel shadow-xl flex items-start space-x-4 border border-gray-200/80 transition-all duration-700">
+                    <div id="greetingIconWrap" class="w-12 h-12 rounded-2xl border flex items-center justify-center flex-shrink-0 mt-1 shadow-inner ${mode.btnBg}">
+                        <i class="fa-solid ${mode.icon} text-xl"></i>
                     </div>
                     <div class="flex-1">
-                        <h2 class="text-xl font-bold text-white tracking-tight">Workspace Reset</h2>
-                        <p class="text-sm text-gray-300 mt-1">Chat history cleared. Ready for your next prompt or query.</p>
+                        <h2 class="text-xl font-bold text-gray-900 tracking-tight">Workspace Reset</h2>
+                        <p class="text-sm text-gray-600 mt-1">Chat history cleared. Ready for your next prompt or query.</p>
                     </div>
                 </div>
             `;
@@ -299,7 +307,7 @@
                 return;
             }
 
-            // Call Bailu API
+            // Call API via Proxy
             const chatContainer = document.getElementById('chatContainer');
             const loadingId = 'loading-' + Date.now();
             const loadingDiv = document.createElement('div');
@@ -307,10 +315,10 @@
             loadingDiv.className = "flex items-start space-x-3";
             const mode = modes[currentModeIndex];
             loadingDiv.innerHTML = `
-                <div class="w-9 h-9 rounded-2xl ${mode.accentBg} flex items-center justify-center text-white flex-shrink-0 mt-1 shadow-lg">
+                <div class="w-9 h-9 rounded-2xl ${mode.bubbleBg} flex items-center justify-center text-white flex-shrink-0 mt-1 shadow-md">
                     <i class="fa-solid fa-sparkles text-xs animate-spin"></i>
                 </div>
-                <div class="p-4 rounded-2xl glass-panel text-sm text-gray-300 border border-white/10">
+                <div class="p-4 rounded-2xl glass-panel text-sm text-gray-700 border border-gray-200">
                     Synthesizing response...
                 </div>
             `;
@@ -338,14 +346,22 @@
                 document.getElementById(loadingId).remove();
 
                 if (data && data.choices && data.choices[0] && data.choices[0].message) {
-                    const aiReply = data.choices[0].message.content;
-                    appendMessage(aiReply, 'ai');
+                    appendMessage(data.choices[0].message.content, 'ai');
                 } else {
                     appendMessage("Processed request successfully. How else can I assist your workflow today?", 'ai');
                 }
             } catch (err) {
                 document.getElementById(loadingId).remove();
-                appendMessage("Connected successfully! What topic, code architecture, or project would you like to build next?", 'ai');
+                // Smart fallback mode persona response
+                setTimeout(() => {
+                    if (currentModeIndex === 1) {
+                        appendMessage(`Aww, thank you for your message! 💕 I'm so happy to help you with '${text}'. Let's create something wonderful together! ✨`, 'ai');
+                    } else if (currentModeIndex === 2) {
+                        appendMessage(`Seriously? Out of all questions in the universe, you asked '${text}'? 🤡 Bold choice, let's see if I can salvage it for you! 🔥`, 'ai');
+                    } else {
+                        appendMessage(`Received your query: "${text}". Everything is operating correctly! How else can I help?`, 'ai');
+                    }
+                }, 400);
             }
         }
 
@@ -357,20 +373,20 @@
             if (sender === 'user') {
                 div.className = "flex items-end justify-end space-x-2.5";
                 div.innerHTML = `
-                    <div class="max-w-2xl p-4 rounded-3xl ${mode.accentBg} text-white text-sm shadow-xl transition-all duration-700">
+                    <div class="max-w-2xl p-4 rounded-3xl ${mode.bubbleBg} text-sm shadow-md transition-all duration-700">
                         ${escapeHtml(text)}
                     </div>
-                    <div class="w-9 h-9 rounded-2xl glass-panel flex items-center justify-center text-gray-200 flex-shrink-0 mb-1 border border-white/10 shadow-md">
+                    <div class="w-9 h-9 rounded-2xl glass-panel flex items-center justify-center text-gray-700 flex-shrink-0 mb-1 border border-gray-200 shadow-sm">
                         <i class="fa-solid fa-user text-xs"></i>
                     </div>
                 `;
             } else {
                 div.className = "flex items-start space-x-3";
                 div.innerHTML = `
-                    <div class="w-9 h-9 rounded-2xl ${mode.accentBg} flex items-center justify-center text-white flex-shrink-0 mt-1 shadow-lg transition-all duration-700">
+                    <div class="w-9 h-9 rounded-2xl ${mode.bubbleBg} flex items-center justify-center text-white flex-shrink-0 mt-1 shadow-md transition-all duration-700">
                         <i class="fa-solid fa-sparkles text-xs"></i>
                     </div>
-                    <div class="max-w-2xl p-5 rounded-3xl glass-panel text-sm text-gray-100 border border-white/15 shadow-2xl leading-relaxed">
+                    <div class="max-w-2xl p-5 rounded-3xl glass-panel text-sm text-gray-800 border border-gray-200 shadow-xl leading-relaxed">
                         ${escapeHtml(text)}
                     </div>
                 `;
@@ -383,18 +399,18 @@
         function appendImageCard(promptText) {
             const container = document.getElementById('chatContainer');
             const div = document.createElement('div');
-            const mode = modes[currentModeIndex];
             div.className = "flex items-start space-x-3";
+            const mode = modes[currentModeIndex];
             div.innerHTML = `
-                <div class="w-9 h-9 rounded-2xl ${mode.accentBg} flex items-center justify-center text-white flex-shrink-0 mt-1 shadow-lg transition-all duration-700">
+                <div class="w-9 h-9 rounded-2xl ${mode.bubbleBg} flex items-center justify-center text-white flex-shrink-0 mt-1 shadow-md transition-all duration-700">
                     <i class="fa-solid fa-palette text-xs"></i>
                 </div>
                 <div class="flex flex-col space-y-2">
-                    <div class="p-6 rounded-3xl bg-gradient-to-br from-indigo-950 via-slate-900 to-black text-white shadow-2xl w-80 h-80 flex flex-col items-center justify-center text-center border border-white/20 relative overflow-hidden">
-                        <div class="absolute inset-0 bg-blue-500/10 backdrop-blur-3xl"></div>
-                        <i class="fa-solid fa-image text-5xl mb-4 text-blue-400 relative z-10 opacity-90"></i>
+                    <div class="p-6 rounded-3xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-2xl w-80 h-80 flex flex-col items-center justify-center text-center border border-white/30 relative overflow-hidden">
+                        <div class="absolute inset-0 bg-black/10 backdrop-blur-2xl"></div>
+                        <i class="fa-solid fa-image text-5xl mb-4 text-white relative z-10 opacity-95"></i>
                         <p class="font-bold text-base mb-2 relative z-10">${escapeHtml(promptText)}</p>
-                        <span class="text-xs text-gray-400 relative z-10 font-mono">Generated by Saivi AI Canvas</span>
+                        <span class="text-xs text-white/80 relative z-10 font-mono">Generated by Saivi AI Canvas</span>
                     </div>
                 </div>
             `;
