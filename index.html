@@ -21,9 +21,8 @@
             width: 150vw; height: 150vh; pointer-events: none; z-index: 0;
             transition: background 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .mode-normal { background: radial-gradient(circle at 50% 45%, rgba(59, 130, 246, 0.18) 0%, rgba(255, 255, 255, 0.99) 75%); }
-        .mode-sweet { background: radial-gradient(circle at 50% 45%, rgba(244, 63, 94, 0.18) 0%, rgba(255, 244, 246, 0.99) 75%); }
-        .mode-roast { background: radial-gradient(circle at 50% 45%, rgba(234, 88, 12, 0.20) 0%, rgba(255, 246, 242, 0.99) 75%); }
+        .mode-standard { background: radial-gradient(circle at 50% 45%, rgba(59, 130, 246, 0.18) 0%, rgba(255, 255, 255, 0.99) 75%); }
+        .mode-pro { background: radial-gradient(circle at 50% 45%, rgba(147, 51, 234, 0.20) 0%, rgba(253, 244, 255, 0.99) 75%); }
         
         .glass-panel {
             background: rgba(255, 255, 255, 0.82);
@@ -41,10 +40,10 @@
         }
     </style>
 </head>
-<body id="bodyTag" class="mode-normal bg-white text-gray-800 font-sans h-screen flex flex-col overflow-hidden relative transition-colors duration-700">
+<body id="bodyTag" class="mode-standard bg-white text-gray-800 font-sans h-screen flex flex-col overflow-hidden relative transition-colors duration-700">
 
     <!-- Ambient Glow Background -->
-    <div id="ambientBg" class="ambient-glow mode-normal"></div>
+    <div id="ambientBg" class="ambient-glow mode-standard"></div>
 
     <!-- Header Navbar -->
     <header class="relative z-20 flex items-center justify-between px-6 py-3.5 border-b border-gray-200/80 glass-panel shadow-sm">
@@ -52,13 +51,13 @@
             <img src="SAivi Ai.png" alt="Saivi AI Logo" class="w-10 h-10 rounded-full object-cover border border-gray-300 shadow-md" onerror="this.src='https://api.iconify.design/lucide:bot.svg'">
             <div class="flex items-center space-x-2">
                 <span class="font-bold text-lg tracking-wide text-gray-900">Saivi AI</span>
-                <span id="versionTag" class="text-xs px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 border border-blue-200 font-medium transition-all duration-500">⚡ Normal</span>
+                <span id="versionTag" class="text-xs px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 border border-blue-200 font-medium transition-all duration-500">⚡ Standard</span>
             </div>
         </div>
 
-        <!-- Single Mode Switcher Button (No "Mode:" or Bot symbols) -->
+        <!-- Mode Switcher Button (Standard vs Pro) -->
         <button id="modeToggleBtn" onclick="cycleMode()" class="flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 shadow-sm">
-            <span id="modeText">⚡ Normal</span>
+            <span id="modeText">⚡ Standard</span>
         </button>
     </header>
 
@@ -68,7 +67,7 @@
         <!-- Center Landing Greeting (Disappears after first message) -->
         <div id="landingHero" class="text-center mb-6 transition-all duration-500">
             <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Where should we start?</h1>
-            <p class="text-sm text-gray-500 mt-1">Ask anything, generate images, or type "weather" for live forecast.</p>
+            <p class="text-sm text-gray-500 mt-1">Ask anything, generate images, or type "weather [city]" for a 7-day forecast.</p>
         </div>
 
         <!-- Chat History Container -->
@@ -79,14 +78,13 @@
     <div id="dockContainer" class="relative z-20 w-full px-4 pb-8 flex flex-col items-center transition-all duration-700">
         <div class="w-full max-w-3xl flex flex-col rounded-3xl glass-input-container p-3.5 transition-all duration-500 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100">
             
-            <!-- Active Chips Container (Files or Image Gen mode tag) -->
+            <!-- Active Chips Container -->
             <div id="activeChips" class="flex flex-wrap gap-2 px-2 pb-2"></div>
 
-            <textarea id="userInput" rows="1" placeholder="Ask anything, write code, or type 'weather'..." class="w-full bg-transparent text-gray-800 placeholder-gray-400 px-3 py-1.5 focus:outline-none resize-none text-sm max-h-32"></textarea>
+            <textarea id="userInput" rows="1" placeholder="Ask anything, write code, or type 'weather Delhi'..." class="w-full bg-transparent text-gray-800 placeholder-gray-400 px-3 py-1.5 focus:outline-none resize-none text-sm max-h-32"></textarea>
             
             <div class="flex items-center justify-between mt-2 px-1 pt-2 border-t border-gray-200/60">
                 <div class="flex items-center space-x-2">
-                    <!-- Hidden File Input for Real Mobile/PC Uploads -->
                     <input type="file" id="fileUploadInput" class="hidden" onchange="handleFileSelected(event)">
                     <button onclick="document.getElementById('fileUploadInput').click()" class="w-8 h-8 rounded-full hover:bg-gray-200/70 flex items-center justify-center text-gray-600 transition" title="Upload File/Photo">
                         <i class="fa-solid fa-plus text-sm"></i>
@@ -112,40 +110,68 @@
     <!-- JavaScript Engine -->
     <script>
         const apiKey = "sk-b74f581431b3f1dee07b4cd20e879296";
-        // Updated with official endpoint from your Bailu dashboard
         const apiEndpoint = "https://corsproxy.io/?https://bailucode.com/openapi/v1/chat/completions";
-        const modelName = "bailu-2.9-preview";
 
-        let currentModeIndex = 0;
-        const modes = [
-            { name: "⚡ Normal", class: "mode-normal", btnBg: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100", bubbleBg: "bg-blue-600 text-white", prompt: "You are Saivi AI. Reply in the exact language the user speaks." },
-            { name: "💖 Sweet", class: "mode-sweet", btnBg: "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100", bubbleBg: "bg-rose-600 text-white", prompt: "You are Saivi AI in Sweet mode. Be warm, loving, and supportive with emojis. Match user language." },
-            { name: "🔥 Roast", class: "mode-roast", btnBg: "bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100", bubbleBg: "bg-orange-600 text-white", prompt: "You are Saivi AI in Roast mode. Be witty and playfully sarcastic. Match user language." }
+        // Dual Tier Configuration
+        const tiers = [
+            { 
+                name: "⚡ Standard", 
+                rawName: "Standard",
+                class: "mode-standard", 
+                btnBg: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100", 
+                bubbleBg: "bg-blue-600 text-white", 
+                limit: 25, 
+                model: "bailu-2.9-preview",
+                prompt: "You are Saivi AI Standard. Reply concisely in the exact language the user speaks." 
+            },
+            { 
+                name: "🧠 Pro", 
+                rawName: "Pro",
+                class: "mode-pro", 
+                btnBg: "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100", 
+                bubbleBg: "bg-purple-600 text-white", 
+                limit: 3, 
+                model: "anthropic/claude-3.5-sonnet",
+                prompt: "You are Saivi AI Pro powered by Claude. Provide exceptionally smart, rich, and detailed responses in the user's language." 
+            }
         ];
 
+        let currentTierIndex = 0;
         let isImageGenActive = false;
         let attachedFile = null;
         let hasStartedChat = false;
 
-        function cycleMode() {
-            const prevModeName = modes[currentModeIndex].name;
-            currentModeIndex = (currentModeIndex + 1) % modes.length;
-            const mode = modes[currentModeIndex];
+        function checkAndConsumeQuota() {
+            const tier = tiers[currentTierIndex];
+            const todayKey = `saivi_quota_${tier.rawName}_${new Date().toDateString()}`;
+            let used = parseInt(localStorage.getItem(todayKey) || "0");
 
-            document.getElementById('bodyTag').className = `${mode.class} bg-white text-gray-800 font-sans h-screen flex flex-col overflow-hidden relative transition-colors duration-700`;
-            document.getElementById('ambientBg').className = `ambient-glow ${mode.class}`;
+            if (used >= tier.limit) {
+                return false; // Quota exhausted
+            }
+            localStorage.setItem(todayKey, used + 1);
+            return true;
+        }
+
+        function cycleMode() {
+            const prevTier = tiers[currentTierIndex].rawName;
+            currentTierIndex = (currentTierIndex + 1) % tiers.length;
+            const tier = tiers[currentTierIndex];
+
+            document.getElementById('bodyTag').className = `${tier.class} bg-white text-gray-800 font-sans h-screen flex flex-col overflow-hidden relative transition-colors duration-700`;
+            document.getElementById('ambientBg').className = `ambient-glow ${tier.class}`;
             
             const btn = document.getElementById('modeToggleBtn');
-            btn.className = `flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 border shadow-sm ${mode.btnBg}`;
-            document.getElementById('modeText').innerText = mode.name;
+            btn.className = `flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 border shadow-sm ${tier.btnBg}`;
+            document.getElementById('modeText').innerText = tier.name;
             
             const versionTag = document.getElementById('versionTag');
-            versionTag.innerText = mode.name;
-            versionTag.className = `text-xs px-2.5 py-0.5 rounded-full border font-medium ${mode.btnBg}`;
+            versionTag.innerText = tier.name;
+            versionTag.className = `text-xs px-2.5 py-0.5 rounded-full border font-medium ${tier.btnBg}`;
             
-            document.getElementById('sendBtn').className = `w-9 h-9 rounded-full ${mode.bubbleBg} flex items-center justify-center transition shadow-md`;
+            document.getElementById('sendBtn').className = `w-9 h-9 rounded-full ${tier.bubbleBg} flex items-center justify-center transition shadow-md`;
 
-            appendSystemNotice(`Mode changed from ${prevModeName.replace(/[^a-zA-Z]/g, '')} to ${mode.name.replace(/[^a-zA-Z]/g, '')}`);
+            appendSystemNotice(`Mode changed from ${prevTier} to ${tier.rawName}`);
         }
 
         function toggleImageMode() {
@@ -206,12 +232,8 @@
                 document.getElementById('userInput').value = event.results[0][0].transcript;
                 micBtn.classList.remove('text-red-500', 'animate-pulse');
             };
-            recognition.onerror = () => {
-                micBtn.classList.remove('text-red-500', 'animate-pulse');
-            };
-            recognition.onend = () => {
-                micBtn.classList.remove('text-red-500', 'animate-pulse');
-            };
+            recognition.onerror = () => micBtn.classList.remove('text-red-500', 'animate-pulse');
+            recognition.onend = () => micBtn.classList.remove('text-red-500', 'animate-pulse');
             recognition.start();
         }
 
@@ -230,9 +252,41 @@
                 document.getElementById('landingHero').style.display = 'none';
                 const chatContainer = document.getElementById('chatContainer');
                 chatContainer.classList.remove('hidden');
+                document.getElementById('mainContainer').style.justifyContent = 'flex-start';
+            }
+        }
+
+        async function fetch7DayWeather(cityName) {
+            try {
+                // 1. Geocoding city name
+                const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1`);
+                const geoData = await geoRes.json();
+                if (!geoData.results || geoData.results.length === 0) {
+                    appendMessage(`Could not find location "${cityName}". Please check spelling.`, 'ai');
+                    return;
+                }
+                const { latitude, longitude, name, country } = geoData.results[0];
+
+                // 2. Fetch 7-day forecast from Open-Meteo
+                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto`);
+                const weatherData = await weatherRes.json();
+
+                let htmlContent = `<div class="font-bold text-gray-900 mb-2">🌤️ 7-Day Weather Forecast for ${name}, ${country || ''}</div><div class="grid grid-cols-1 gap-2">`;
                 
-                const mainContainer = document.getElementById('mainContainer');
-                mainContainer.style.justifyContent = 'flex-start';
+                const days = weatherData.daily.time;
+                for (let i = 0; i < days.length; i++) {
+                    htmlContent += `
+                        <div class="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-xl border border-gray-200 text-xs">
+                            <span class="font-semibold text-gray-700">${days[i]}</span>
+                            <span class="text-blue-600 font-medium">High: ${weatherData.daily.temperature_2m_max[i]}°C</span>
+                            <span class="text-gray-500">Low: ${weatherData.daily.temperature_2m_min[i]}°C</span>
+                        </div>
+                    `;
+                }
+                htmlContent += `</div>`;
+                appendCustomCard(htmlContent);
+            } catch (err) {
+                appendMessage("Failed to fetch weather data. Please try again later.", 'ai');
             }
         }
 
@@ -241,39 +295,51 @@
             const text = input.value.trim();
             if (!text && !attachedFile) return;
 
+            // Check Quota before sending
+            if (!checkAndConsumeQuota()) {
+                appendMessage("Your Daily Quota has exhausted; Come Tomorrow to Enjoy more; Introducing Paid Plan Soon! 🚀⏳", 'ai');
+                input.value = "";
+                return;
+            }
+
             transitionToChatLayout();
 
             let displayText = text;
-            if (attachedFile) {
-                displayText += ` [Attached: ${attachedFile.name}]`;
-            }
+            if (attachedFile) displayText += ` [Attached: ${attachedFile.name}]`;
 
             input.value = "";
-            const currentFile = attachedFile;
             attachedFile = null;
             document.getElementById('fileUploadInput').value = "";
             renderChips();
 
             appendMessage(displayText, 'user');
 
-            if (text.toLowerCase() === 'weather') {
-                setTimeout(() => appendMessage("☀️ Live Weather Report: 24°C, Sunny with gentle breezes in your region!", 'ai'), 500);
+            // Handle Weather Command with location precision
+            if (text.toLowerCase().startsWith('weather')) {
+                const parts = text.split(' ');
+                if (parts.length > 1) {
+                    const city = parts.slice(1).join(' ');
+                    setTimeout(() => fetch7DayWeather(city), 500);
+                } else {
+                    setTimeout(() => appendMessage("Please specify your city name for the 7-day forecast (e.g., 'weather Mumbai' or 'weather London'). 🌍", 'ai'), 400);
+                }
                 return;
             }
 
+            // Handle Image Generation
             if (isImageGenActive) {
                 setTimeout(() => appendPollinationsImage(text || "AI Art Generation"), 600);
                 return;
             }
 
-            // Call API via Proxy with official endpoint
+            // Call API via Proxy
             const chatContainer = document.getElementById('chatContainer');
             const loadingId = 'loading-' + Date.now();
             const loadingDiv = document.createElement('div');
             loadingDiv.id = loadingId;
             loadingDiv.className = "flex items-start space-x-3";
-            const mode = modes[currentModeIndex];
-            loadingDiv.innerHTML = `<div class="w-8 h-8 rounded-full ${mode.bubbleBg} flex items-center justify-center shadow-sm"><i class="fa-solid fa-sparkles text-xs animate-spin"></i></div><div class="p-4 rounded-2xl glass-panel text-sm text-gray-700">Thinking...</div>`;
+            const tier = tiers[currentTierIndex];
+            loadingDiv.innerHTML = `<div class="w-8 h-8 rounded-full ${tier.bubbleBg} flex items-center justify-center shadow-sm"><i class="fa-solid fa-sparkles text-xs animate-spin"></i></div><div class="p-4 rounded-2xl glass-panel text-sm text-gray-700">Thinking...</div>`;
             chatContainer.appendChild(loadingDiv);
             chatContainer.scrollTop = chatContainer.scrollHeight;
 
@@ -281,7 +347,7 @@
                 const response = await fetch(apiEndpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-                    body: JSON.stringify({ model: modelName, messages: [{ role: "system", content: modes[currentModeIndex].prompt }, { role: "user", content: text }] })
+                    body: JSON.stringify({ model: tier.model, messages: [{ role: "system", content: tier.prompt }, { role: "user", content: text }] })
                 });
                 const data = await response.json();
                 document.getElementById(loadingId).remove();
@@ -292,21 +358,31 @@
                 }
             } catch (err) {
                 document.getElementById(loadingId).remove();
-                appendMessage(`Processed: "${text}". Ready for your next query!`, 'ai');
+                appendMessage(`Processed query in ${tier.rawName} mode: "${text}".`, 'ai');
             }
         }
 
         function appendMessage(text, sender) {
             const container = document.getElementById('chatContainer');
             const div = document.createElement('div');
-            const mode = modes[currentModeIndex];
+            const tier = tiers[currentTierIndex];
             if (sender === 'user') {
                 div.className = "flex items-end justify-end space-x-2";
-                div.innerHTML = `<div class="max-w-xl p-4 rounded-2xl ${mode.bubbleBg} text-sm shadow-md">${escapeHtml(text)}</div><div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 border border-gray-300"><i class="fa-solid fa-user text-xs"></i></div>`;
+                div.innerHTML = `<div class="max-w-xl p-4 rounded-2xl ${tier.bubbleBg} text-sm shadow-md">${escapeHtml(text)}</div><div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 border border-gray-300"><i class="fa-solid fa-user text-xs"></i></div>`;
             } else {
                 div.className = "flex items-start space-x-3";
-                div.innerHTML = `<div class="w-8 h-8 rounded-full ${mode.bubbleBg} flex items-center justify-center shadow-sm"><i class="fa-solid fa-sparkles text-xs"></i></div><div class="max-w-xl p-4 rounded-2xl glass-panel text-sm text-gray-800 shadow-md leading-relaxed">${escapeHtml(text)}</div>`;
+                div.innerHTML = `<div class="w-8 h-8 rounded-full ${tier.bubbleBg} flex items-center justify-center shadow-sm"><i class="fa-solid fa-sparkles text-xs"></i></div><div class="max-w-xl p-4 rounded-2xl glass-panel text-sm text-gray-800 shadow-md leading-relaxed">${escapeHtml(text)}</div>`;
             }
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function appendCustomCard(htmlContent) {
+            const container = document.getElementById('chatContainer');
+            const div = document.createElement('div');
+            const tier = tiers[currentTierIndex];
+            div.className = "flex items-start space-x-3";
+            div.innerHTML = `<div class="w-8 h-8 rounded-full ${tier.bubbleBg} flex items-center justify-center shadow-sm"><i class="fa-solid fa-sparkles text-xs"></i></div><div class="max-w-xl p-4 rounded-2xl glass-panel text-sm text-gray-800 shadow-xl">${htmlContent}</div>`;
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
         }
